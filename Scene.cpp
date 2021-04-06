@@ -101,6 +101,9 @@ ID3D11Buffer*     gPerModelConstantBuffer; // --"--
 ID3D11Resource*           gCharacterDiffuseSpecularMap    = nullptr; // This object represents the memory used by the texture on the GPU
 ID3D11ShaderResourceView* gCharacterDiffuseSpecularMapSRV = nullptr; // This object is used to give shaders access to the texture above (SRV = shader resource view)
 
+ID3D11Resource*           gWoodDiffuseSpecularMap = nullptr;
+ID3D11ShaderResourceView* gWoodDiffuseSpecularMapSRV = nullptr;
+
 ID3D11Resource*           gCrateDiffuseSpecularMap    = nullptr;
 ID3D11ShaderResourceView* gCrateDiffuseSpecularMapSRV = nullptr;
 
@@ -165,6 +168,7 @@ bool InitGeometry()
     // texture and also a ID3D11ShaderResourceView* (e.g. &gCubeDiffuseMapSRV), which allows us to use the texture in shaders
     // The function will fill in these pointers with usable data. The variables used here are globals found near the top of the file.
     if (!LoadTexture("MetalDiffuseSpecular.dds", &gCharacterDiffuseSpecularMap, &gCharacterDiffuseSpecularMapSRV) ||
+        !LoadTexture("WoodDiffuseSpecular.dds",  &gWoodDiffuseSpecularMap,      &gWoodDiffuseSpecularMapSRV) ||
         !LoadTexture("CargoA.dds",               &gCrateDiffuseSpecularMap,     &gCrateDiffuseSpecularMapSRV    ) ||
         !LoadTexture("GrassDiffuseSpecular.dds", &gGroundDiffuseSpecularMap,    &gGroundDiffuseSpecularMapSRV   ) ||
         !LoadTexture("Flare.jpg",                &gLightDiffuseMap,             &gLightDiffuseMapSRV))
@@ -250,6 +254,9 @@ void ReleaseResources()
     if (gCharacterDiffuseSpecularMapSRV) gCharacterDiffuseSpecularMapSRV->Release();
     if (gCharacterDiffuseSpecularMap)    gCharacterDiffuseSpecularMap->Release();
 
+    if (gWoodDiffuseSpecularMap) gWoodDiffuseSpecularMap->Release();
+    if (gWoodDiffuseSpecularMapSRV) gWoodDiffuseSpecularMapSRV->Release();
+
     if (gPerModelConstantBuffer)  gPerModelConstantBuffer->Release();
     if (gPerFrameConstantBuffer)  gPerFrameConstantBuffer->Release();
 
@@ -320,8 +327,6 @@ void RenderSceneFromCamera(Camera* camera)
     gCrate->Render();
 
 
-    gD3DContext->PSSetShaderResources(0, 1, &gCharacterDiffuseSpecularMapSRV);
-    gCube->Render();
 
 
 
@@ -330,6 +335,12 @@ void RenderSceneFromCamera(Camera* camera)
     gD3DContext->PSSetShader(gWigglePixelShader, nullptr, 0);
     gD3DContext->PSSetShaderResources(0, 1, &gCharacterDiffuseSpecularMapSRV);
     gSphere->Render();
+
+    gD3DContext->VSSetShader(gFadingVertexShader, nullptr, 0);
+    gD3DContext->PSSetShader(gFadingPixelShader, nullptr, 0);
+    gD3DContext->PSSetShaderResources(0, 1, &gCharacterDiffuseSpecularMapSRV);
+    gD3DContext->PSSetShaderResources(1, 1, &gWoodDiffuseSpecularMapSRV);
+    gCube->Render();
 
 
     //// Render lights ////
