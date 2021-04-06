@@ -38,12 +38,14 @@ const float MOVEMENT_SPEED = 50.0f; // 50 units per second for movement (what a 
 // Meshes, models and cameras, same meaning as TL-Engine. Meshes prepared in InitGeometry function, Models & camera in InitScene
 Mesh* gTeapotMesh;
 Mesh* gSphereMesh;
+Mesh* gCubeMesh;
 Mesh* gCrateMesh;
 Mesh* gGroundMesh;
 Mesh* gLightMesh;
 
 Model* gTeapot;
 Model* gSphere;
+Model* gCube;
 Model* gCrate;
 Model* gGround;
 
@@ -124,6 +126,7 @@ bool InitGeometry()
     {
         gTeapotMesh = new Mesh("teapot.x");
         gSphereMesh = new Mesh("Sphere.x");
+        gCubeMesh = new Mesh("Cube.x");
         gCrateMesh    = new Mesh("CargoContainer.x");
         gGroundMesh   = new Mesh("Hills.x");
         gLightMesh    = new Mesh("Light.x");
@@ -190,6 +193,7 @@ bool InitScene()
 
     gTeapot   = new Model(gTeapotMesh);
     gSphere     = new Model(gSphereMesh);
+    gCube = new Model(gCubeMesh);
     gCrate    = new Model(gCrateMesh);
     gGround   = new Model(gGroundMesh);
 
@@ -199,6 +203,7 @@ bool InitScene()
     gTeapot->SetScale(1); 
     gTeapot->SetRotation({ 0, ToRadians(135.0f), 0 });
     gSphere->  SetPosition({ 10,10,10 });
+    gCube->SetPosition({ 30,20,10 });
 	gCrate-> SetPosition({ 45, 0, 45 });
 	gCrate-> SetScale(6);
 	gCrate-> SetRotation({ 0.0f, ToRadians(-50.0f), 0.0f });
@@ -260,6 +265,7 @@ void ReleaseResources()
     delete gCrate;     gCrate     = nullptr;
     delete gTeapot;  gTeapot = nullptr;
     delete gSphere; gSphere = nullptr;
+    delete gCube; gCube = nullptr;
 
     delete gLightMesh;     gLightMesh     = nullptr;
     delete gGroundMesh;    gGroundMesh    = nullptr;
@@ -312,6 +318,11 @@ void RenderSceneFromCamera(Camera* camera)
 
     gD3DContext->PSSetShaderResources(0, 1, &gCrateDiffuseSpecularMapSRV);
     gCrate->Render();
+
+
+    gD3DContext->PSSetShaderResources(0, 1, &gCharacterDiffuseSpecularMapSRV);
+    gCube->Render();
+
 
 
 
