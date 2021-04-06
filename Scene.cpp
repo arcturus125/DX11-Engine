@@ -388,6 +388,10 @@ void RenderScene()
 // Scene Update
 //--------------------------------------------------------------------------------------
 
+
+int strengthMultiplier = 1;
+int colourMultiplier = 1;
+
 // Update models and camera. frameTime is the time passed since the last frame
 void UpdateScene(float frameTime)
 {
@@ -424,10 +428,26 @@ void UpdateScene(float frameTime)
         std::ostringstream frameTimeMs;
         frameTimeMs.precision(2);
         frameTimeMs << std::fixed << avgFrameTime * 1000;
-        std::string windowTitle = "CO2409 Week 21: Matrix Hierarchies / Animation - Frame Time: " + frameTimeMs.str() +
+        std::string windowTitle = "StrangeEngine - Frame Time: " + frameTimeMs.str() +
                                   "ms, FPS: " + std::to_string(static_cast<int>(1 / avgFrameTime + 0.5f));
         SetWindowTextA(gHWnd, windowTitle.c_str());
         totalFrameTime = 0;
         frameCount = 0;
     }
+
+    // MYCODE
+    gLights[1].strength -= 0.1 * strengthMultiplier; // 40%
+    if (gLights[1].strength <= 0)                    // make one light pulsate on and off
+        strengthMultiplier = -1;                     //
+    else if (gLights[1].strength >= 40)              //
+        strengthMultiplier = 1;                      //
+
+
+
+    gLights[0].colour.x -= 0.003 * colourMultiplier; // 40%
+    if (gLights[0].colour.x <= 0)                    // make the other light gradually change colour between blue and white
+        colourMultiplier = -1;                       //
+    else if (gLights[0].colour.x >= 1)               //
+        colourMultiplier = 1;                        //
+
 }
