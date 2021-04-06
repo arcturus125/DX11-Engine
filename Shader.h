@@ -16,7 +16,9 @@
 
 // Vertex and pixel shader DirectX objects
 extern ID3D11VertexShader* gPixelLightingVertexShader;
+extern ID3D11VertexShader* gWiggleVertexShader;
 extern ID3D11PixelShader*  gPixelLightingPixelShader;
+extern ID3D11PixelShader* gWigglePixelShader;
 extern ID3D11VertexShader* gBasicTransformVertexShader;
 extern ID3D11PixelShader*  gLightModelPixelShader;
 

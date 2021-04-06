@@ -16,7 +16,9 @@
 
 // Vertex and pixel shader DirectX objects
 ID3D11VertexShader* gPixelLightingVertexShader = nullptr;
-ID3D11PixelShader*  gPixelLightingPixelShader  = nullptr;
+ID3D11VertexShader* gWiggleVertexShader = nullptr;
+ID3D11PixelShader* gPixelLightingPixelShader = nullptr;
+ID3D11PixelShader* gWigglePixelShader = nullptr;
 ID3D11VertexShader* gBasicTransformVertexShader = nullptr;
 ID3D11PixelShader*  gLightModelPixelShader  = nullptr;
 
@@ -33,11 +35,14 @@ bool LoadShaders()
     // To load them for use, include them here without the extension. Use the correct function for each.
     // Ensure you release the shaders in the ShutdownDirect3D function below
     gPixelLightingVertexShader  = LoadVertexShader("PixelLighting_vs"); // Note how the shader files are named to show what type they are
-    gPixelLightingPixelShader   = LoadPixelShader ("PixelLighting_ps");
+    gWiggleVertexShader = LoadVertexShader("Wiggle_vs");
+    gPixelLightingPixelShader = LoadPixelShader("PixelLighting_ps");
+    gWigglePixelShader = LoadPixelShader("Wiggle_ps");
     gBasicTransformVertexShader = LoadVertexShader("BasicTransform_vs");
     gLightModelPixelShader      = LoadPixelShader ("LightModel_ps");
 
     if (gPixelLightingVertexShader  == nullptr || gPixelLightingPixelShader == nullptr ||
+        gWiggleVertexShader == nullptr || gPixelLightingPixelShader == nullptr ||
         gBasicTransformVertexShader == nullptr || gLightModelPixelShader    == nullptr)
     {
         gLastError = "Error loading shaders";
@@ -53,6 +58,8 @@ void ReleaseShaders()
     if (gLightModelPixelShader)       gLightModelPixelShader->Release();
     if (gBasicTransformVertexShader)  gBasicTransformVertexShader->Release();
     if (gPixelLightingPixelShader)    gPixelLightingPixelShader->Release();
+    if (gWigglePixelShader)           gWigglePixelShader->Release();
+    if (gWiggleVertexShader)          gWiggleVertexShader->Release();
     if (gPixelLightingVertexShader)   gPixelLightingVertexShader->Release();
 }
 

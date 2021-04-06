@@ -37,11 +37,13 @@ const float MOVEMENT_SPEED = 50.0f; // 50 units per second for movement (what a 
 
 // Meshes, models and cameras, same meaning as TL-Engine. Meshes prepared in InitGeometry function, Models & camera in InitScene
 Mesh* gTeapotMesh;
+Mesh* gSphereMesh;
 Mesh* gCrateMesh;
 Mesh* gGroundMesh;
 Mesh* gLightMesh;
 
 Model* gTeapot;
+Model* gSphere;
 Model* gCrate;
 Model* gGround;
 
@@ -121,6 +123,7 @@ bool InitGeometry()
     try 
     {
         gTeapotMesh = new Mesh("teapot.x");
+        gSphereMesh = new Mesh("Sphere.x");
         gCrateMesh    = new Mesh("CargoContainer.x");
         gGroundMesh   = new Mesh("Hills.x");
         gLightMesh    = new Mesh("Light.x");
@@ -186,6 +189,7 @@ bool InitScene()
     //// Set up scene ////
 
     gTeapot   = new Model(gTeapotMesh);
+    gSphere     = new Model(gSphereMesh);
     gCrate    = new Model(gCrateMesh);
     gGround   = new Model(gGroundMesh);
 
@@ -194,6 +198,7 @@ bool InitScene()
 	gTeapot->SetPosition({ 20, 0, 0 });
     gTeapot->SetScale(1); 
     gTeapot->SetRotation({ 0, ToRadians(135.0f), 0 });
+    gSphere->  SetPosition({ 10,10,10 });
 	gCrate-> SetPosition({ 45, 0, 45 });
 	gCrate-> SetScale(6);
 	gCrate-> SetRotation({ 0.0f, ToRadians(-50.0f), 0.0f });
@@ -254,6 +259,7 @@ void ReleaseResources()
     delete gGround;    gGround    = nullptr;
     delete gCrate;     gCrate     = nullptr;
     delete gTeapot;  gTeapot = nullptr;
+    delete gSphere; gSphere = nullptr;
 
     delete gLightMesh;     gLightMesh     = nullptr;
     delete gGroundMesh;    gGroundMesh    = nullptr;
@@ -308,6 +314,13 @@ void RenderSceneFromCamera(Camera* camera)
     gCrate->Render();
 
 
+
+    gD3DContext->VSSetShader(gWiggleVertexShader, nullptr, 0);
+    gD3DContext->PSSetShader(gWigglePixelShader, nullptr, 0);
+    gD3DContext->PSSetShaderResources(0, 1, &gCharacterDiffuseSpecularMapSRV);
+    gSphere->Render();
+
+
     //// Render lights ////
 
     // Select which shaders to use next
@@ -332,7 +345,7 @@ void RenderSceneFromCamera(Camera* camera)
 }
 
 
-
+float wiggleTimer = 0;
 
 // Rendering the scene
 void RenderScene()
@@ -349,6 +362,8 @@ void RenderScene()
     gPerFrameConstants.ambientColour  = gAmbientColour;
     gPerFrameConstants.specularPower  = gSpecularPower;
     gPerFrameConstants.cameraPosition = gCamera->Position();
+
+    gPerFrameConstants.padding1 = wiggleTimer;
 
 
 
@@ -395,14 +410,12 @@ int colourMultiplier = 1;
 // Update models and camera. frameTime is the time passed since the last frame
 void UpdateScene(float frameTime)
 {
+    wiggleTimer += frameTime;               // a timer used for the wiggle in the pixel shader 40%
+    if (wiggleTimer > 1000000) wiggleTimer = 0; //
+
+
 	// Control sphere (will update its world matrix)
     gTeapot->Control(0, frameTime, Key_I, Key_K, Key_J, Key_L, Key_U, Key_O, Key_Period, Key_Comma);
-
-
-    /*gTeapot->Control(0, frameTime, Key_1, Key_1, Key_1, Key_1, Key_1, Key_1, Key_J, Key_1);
-    gTeapot->Control(0, frameTime, Key_1, Key_1, Key_1, Key_1, Key_1, Key_1, Key_L, Key_1);
-    gTeapot->Control(20, frameTime, Key_1, Key_1, Key_1, Key_1, Key_J, Key_L, Key_Period, Key_Comma);
-    gTeapot->Control(8, frameTime, Key_1, Key_1, Key_1, Key_1, Key_L, Key_J, Key_Period, Key_Comma);*/
 
     // Orbit the light - a bit of a cheat with the static variable [ask the tutor if you want to know what this is]
 	static float rotate = 0.0f;
