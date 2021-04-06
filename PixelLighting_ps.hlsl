@@ -42,7 +42,7 @@ float4 main(LightingPixelShaderInput input) : SV_Target
     float3 light1Dist = length(gLight1Position - input.worldPosition);
     
     // Equations from lighting lecture
-    float3 diffuseLight1 = gLight1Colour * max(dot(input.worldNormal, light1Direction), 0) / light1Dist; 
+    float3 diffuseLight1 = gLight1Colour * max(dot(input.worldNormal, light1Direction), 0) / (light1Dist * 3); // multiploying by 3 increases the attenuation - makes the lighting smoother
     float3 halfway = normalize(light1Direction + cameraDirection);
     float3 specularLight1 =  diffuseLight1 * pow(max(dot(input.worldNormal, halfway), 0), gSpecularPower); // Multiplying by diffuseLight instead of light colour - my own personal preference
 
@@ -51,7 +51,7 @@ float4 main(LightingPixelShaderInput input) : SV_Target
 
 	float3 light2Direction = normalize(gLight2Position - input.worldPosition);
     float3 light2Dist = length(gLight2Position - input.worldPosition);
-    float3 diffuseLight2 = gLight2Colour * max(dot(input.worldNormal, light2Direction), 0) / light2Dist; 
+    float3 diffuseLight2 = gLight2Colour * max(dot(input.worldNormal, light2Direction), 0) / (light2Dist * 3); // multiploying by 3 increases the attenuation - makes the lighting smoother
     halfway = normalize(light2Direction + cameraDirection);
     float3 specularLight2 =  diffuseLight2 * pow(max(dot(input.worldNormal, halfway), 0), gSpecularPower);
 

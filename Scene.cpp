@@ -36,12 +36,12 @@ const float MOVEMENT_SPEED = 50.0f; // 50 units per second for movement (what a 
 
 
 // Meshes, models and cameras, same meaning as TL-Engine. Meshes prepared in InitGeometry function, Models & camera in InitScene
-Mesh* gAnimatedMesh;
+Mesh* gTeapotMesh;
 Mesh* gCrateMesh;
 Mesh* gGroundMesh;
 Mesh* gLightMesh;
 
-Model* gAnimated;
+Model* gTeapot;
 Model* gCrate;
 Model* gGround;
 
@@ -120,7 +120,7 @@ bool InitGeometry()
     // IMPORTANT NOTE: Will only keep the first object from the mesh - multipart objects will have parts missing - see later lab for more robust loader
     try 
     {
-        gAnimatedMesh = new Mesh("robot.x");
+        gTeapotMesh = new Mesh("teapot.x");
         gCrateMesh    = new Mesh("CargoContainer.x");
         gGroundMesh   = new Mesh("Hills.x");
         gLightMesh    = new Mesh("Light.x");
@@ -185,15 +185,15 @@ bool InitScene()
 {
     //// Set up scene ////
 
-    gAnimated = new Model(gAnimatedMesh);
+    gTeapot   = new Model(gTeapotMesh);
     gCrate    = new Model(gCrateMesh);
     gGround   = new Model(gGroundMesh);
 
 
 	// Initial positions
-	gAnimated->SetPosition({ 20, 0, 0 });
-    gAnimated->SetScale(5); // Increase model scale to 5.0 for the robot, which has been drawn at a different scale
-    gAnimated->SetRotation({ 0, ToRadians(135.0f), 0 });
+	gTeapot->SetPosition({ 20, 0, 0 });
+    gTeapot->SetScale(1); 
+    gTeapot->SetRotation({ 0, ToRadians(135.0f), 0 });
 	gCrate-> SetPosition({ 45, 0, 45 });
 	gCrate-> SetScale(6);
 	gCrate-> SetRotation({ 0.0f, ToRadians(-50.0f), 0.0f });
@@ -253,12 +253,12 @@ void ReleaseResources()
     delete gCamera;    gCamera    = nullptr;
     delete gGround;    gGround    = nullptr;
     delete gCrate;     gCrate     = nullptr;
-    delete gAnimated;  gAnimated = nullptr;
+    delete gTeapot;  gTeapot = nullptr;
 
     delete gLightMesh;     gLightMesh     = nullptr;
     delete gGroundMesh;    gGroundMesh    = nullptr;
     delete gCrateMesh;     gCrateMesh     = nullptr;
-    delete gAnimatedMesh;  gAnimatedMesh = nullptr;
+    delete gTeapotMesh;  gTeapotMesh = nullptr;
 }
 
 
@@ -302,7 +302,7 @@ void RenderSceneFromCamera(Camera* camera)
 
     // Render other lit models, only change textures for each onee
     gD3DContext->PSSetShaderResources(0, 1, &gCharacterDiffuseSpecularMapSRV); 
-    gAnimated->Render();
+    gTeapot->Render();
 
     gD3DContext->PSSetShaderResources(0, 1, &gCrateDiffuseSpecularMapSRV);
     gCrate->Render();
@@ -396,15 +396,18 @@ int colourMultiplier = 1;
 void UpdateScene(float frameTime)
 {
 	// Control sphere (will update its world matrix)
-    gAnimated->Control(0, frameTime, Key_1, Key_1, Key_1, Key_1, Key_1, Key_1, Key_J, Key_1);
-    gAnimated->Control(0, frameTime, Key_1, Key_1, Key_1, Key_1, Key_1, Key_1, Key_L, Key_1);
-    gAnimated->Control(20, frameTime, Key_1, Key_1, Key_1, Key_1, Key_J, Key_L, Key_Period, Key_Comma);
-    gAnimated->Control(8, frameTime, Key_1, Key_1, Key_1, Key_1, Key_L, Key_J, Key_Period, Key_Comma);
+    gTeapot->Control(0, frameTime, Key_I, Key_K, Key_J, Key_L, Key_U, Key_O, Key_Period, Key_Comma);
+
+
+    /*gTeapot->Control(0, frameTime, Key_1, Key_1, Key_1, Key_1, Key_1, Key_1, Key_J, Key_1);
+    gTeapot->Control(0, frameTime, Key_1, Key_1, Key_1, Key_1, Key_1, Key_1, Key_L, Key_1);
+    gTeapot->Control(20, frameTime, Key_1, Key_1, Key_1, Key_1, Key_J, Key_L, Key_Period, Key_Comma);
+    gTeapot->Control(8, frameTime, Key_1, Key_1, Key_1, Key_1, Key_L, Key_J, Key_Period, Key_Comma);*/
 
     // Orbit the light - a bit of a cheat with the static variable [ask the tutor if you want to know what this is]
 	static float rotate = 0.0f;
     static bool go = true;
-	gLights[0].model->SetPosition( gAnimated->Position() + CVector3{ cos(rotate) * gLightOrbit, 10, sin(rotate) * gLightOrbit } );
+	gLights[0].model->SetPosition( gTeapot->Position() + CVector3{ cos(rotate) * gLightOrbit, 10, sin(rotate) * gLightOrbit } );
     if (go)  rotate -= gLightOrbitSpeed * frameTime;
     if (KeyHit(Key_1))  go = !go;
 
