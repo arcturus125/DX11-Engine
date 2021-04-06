@@ -338,8 +338,8 @@ void RenderSceneFromCamera(Camera* camera)
 
     gD3DContext->VSSetShader(gFadingVertexShader, nullptr, 0);
     gD3DContext->PSSetShader(gFadingPixelShader, nullptr, 0);
-    gD3DContext->PSSetShaderResources(0, 1, &gCharacterDiffuseSpecularMapSRV);
-    gD3DContext->PSSetShaderResources(1, 1, &gWoodDiffuseSpecularMapSRV);
+    gD3DContext->PSSetShaderResources(0, 1, &gCharacterDiffuseSpecularMapSRV);// pass first texture to shader
+    gD3DContext->PSSetShaderResources(1, 1, &gWoodDiffuseSpecularMapSRV);// pass second texture to shader
     gCube->Render();
 
 
@@ -474,10 +474,10 @@ void UpdateScene(float frameTime)
     }
 
     // MYCODE
-    gLights[1].strength -= 0.1 * strengthMultiplier; // 40%
+    gLights[1].strength -= 0.2 * strengthMultiplier; // 40%
     if (gLights[1].strength <= 0)                    // make one light pulsate on and off
         strengthMultiplier = -1;                     //
-    else if (gLights[1].strength >= 40)              //
+    else if (gLights[1].strength >= 200)             //
         strengthMultiplier = 1;                      //
 
 
