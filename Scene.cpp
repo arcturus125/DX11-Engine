@@ -39,6 +39,7 @@ const float MOVEMENT_SPEED = 50.0f; // 50 units per second for movement (what a 
 Mesh* gTeapotMesh;
 Mesh* gSphereMesh;
 Mesh* gCubeMesh;
+Mesh* gBumpedCubeMesh;
 Mesh* gCrateMesh;
 Mesh* gGroundMesh;
 Mesh* gLightMesh;
@@ -46,6 +47,7 @@ Mesh* gLightMesh;
 Model* gTeapot;
 Model* gSphere;
 Model* gCube;
+Model* gBumpedCube;
 Model* gCrate;
 Model* gGround;
 
@@ -113,6 +115,13 @@ ID3D11ShaderResourceView* gGroundDiffuseSpecularMapSRV = nullptr;
 ID3D11Resource*           gLightDiffuseMap    = nullptr;
 ID3D11ShaderResourceView* gLightDiffuseMapSRV = nullptr;
 
+ID3D11Resource*           gPatternDiffuseSpecularMap = nullptr;
+ID3D11ShaderResourceView* gPatternDiffuseSpecularMapSRV = nullptr;
+
+
+ID3D11Resource*           gPatternNormalMap = nullptr;
+ID3D11ShaderResourceView* gPatternNormalMapSRV = nullptr;
+
 
 
 //--------------------------------------------------------------------------------------
@@ -130,6 +139,9 @@ bool InitGeometry()
         gTeapotMesh = new Mesh("teapot.x");
         gSphereMesh = new Mesh("Sphere.x");
         gCubeMesh = new Mesh("Cube.x");
+        gBumpedCubeMesh = new Mesh("Cube.x", true);     // <-----   use true to make this mesh generate tangents
+                                                        //          this means that the model will use TangentVertex in common.hlsli instead of
+                                                        //          BasicVertex. (meaning that normal maps can now be used on the any model using this mesh)
         gCrateMesh    = new Mesh("CargoContainer.x");
         gGroundMesh   = new Mesh("Hills.x");
         gLightMesh    = new Mesh("Light.x");
@@ -167,8 +179,10 @@ bool InitGeometry()
     // The LoadTexture function requires you to pass a ID3D11Resource* (e.g. &gCubeDiffuseMap), which manages the GPU memory for the
     // texture and also a ID3D11ShaderResourceView* (e.g. &gCubeDiffuseMapSRV), which allows us to use the texture in shaders
     // The function will fill in these pointers with usable data. The variables used here are globals found near the top of the file.
-    if (!LoadTexture("MetalDiffuseSpecular.dds", &gCharacterDiffuseSpecularMap, &gCharacterDiffuseSpecularMapSRV) ||
-        !LoadTexture("WoodDiffuseSpecular.dds",  &gWoodDiffuseSpecularMap,      &gWoodDiffuseSpecularMapSRV) ||
+    if (!LoadTexture("MetalDiffuseSpecular.dds",  &gCharacterDiffuseSpecularMap, &gCharacterDiffuseSpecularMapSRV) ||
+        !LoadTexture("PatternDiffuseSpecular.dds",&gPatternDiffuseSpecularMap, &gPatternDiffuseSpecularMapSRV) ||
+        !LoadTexture("PatternNormal.dds",         &gPatternNormalMap, &gPatternNormalMapSRV) ||
+        !LoadTexture("WoodDiffuseSpecular.dds", &gWoodDiffuseSpecularMap, &gWoodDiffuseSpecularMapSRV) ||
         !LoadTexture("CargoA.dds",               &gCrateDiffuseSpecularMap,     &gCrateDiffuseSpecularMapSRV    ) ||
         !LoadTexture("GrassDiffuseSpecular.dds", &gGroundDiffuseSpecularMap,    &gGroundDiffuseSpecularMapSRV   ) ||
         !LoadTexture("Flare.jpg",                &gLightDiffuseMap,             &gLightDiffuseMapSRV))
@@ -198,6 +212,7 @@ bool InitScene()
     gTeapot   = new Model(gTeapotMesh);
     gSphere     = new Model(gSphereMesh);
     gCube = new Model(gCubeMesh);
+    gBumpedCube = new Model(gBumpedCubeMesh);
     gCrate    = new Model(gCrateMesh);
     gGround   = new Model(gGroundMesh);
 
@@ -208,6 +223,7 @@ bool InitScene()
     gTeapot->SetRotation({ 0, ToRadians(135.0f), 0 });
     gSphere->  SetPosition({ 10,10,10 });
     gCube->SetPosition({ 30,20,10 });
+    gBumpedCube->SetPosition({ 60,30,20 });
 	gCrate-> SetPosition({ 45, 0, 45 });
 	gCrate-> SetScale(6);
 	gCrate-> SetRotation({ 0.0f, ToRadians(-50.0f), 0.0f });
@@ -253,6 +269,10 @@ void ReleaseResources()
     if (gCrateDiffuseSpecularMap)        gCrateDiffuseSpecularMap->Release();
     if (gCharacterDiffuseSpecularMapSRV) gCharacterDiffuseSpecularMapSRV->Release();
     if (gCharacterDiffuseSpecularMap)    gCharacterDiffuseSpecularMap->Release();
+    if (gPatternDiffuseSpecularMapSRV) gPatternDiffuseSpecularMapSRV->Release();
+    if (gPatternDiffuseSpecularMap) gPatternDiffuseSpecularMap->Release();
+    if (gPatternNormalMapSRV) gPatternNormalMapSRV->Release();
+    if (gPatternNormalMap) gPatternNormalMap->Release();
 
     if (gWoodDiffuseSpecularMap) gWoodDiffuseSpecularMap->Release();
     if (gWoodDiffuseSpecularMapSRV) gWoodDiffuseSpecularMapSRV->Release();
@@ -330,17 +350,28 @@ void RenderSceneFromCamera(Camera* camera)
 
 
 
-
+    //sphere
     gD3DContext->VSSetShader(gWiggleVertexShader, nullptr, 0);
     gD3DContext->PSSetShader(gWigglePixelShader, nullptr, 0);
     gD3DContext->PSSetShaderResources(0, 1, &gCharacterDiffuseSpecularMapSRV);
     gSphere->Render();
 
+    //cube
     gD3DContext->VSSetShader(gFadingVertexShader, nullptr, 0);
     gD3DContext->PSSetShader(gFadingPixelShader, nullptr, 0);
     gD3DContext->PSSetShaderResources(0, 1, &gCharacterDiffuseSpecularMapSRV);// pass first texture to shader
     gD3DContext->PSSetShaderResources(1, 1, &gWoodDiffuseSpecularMapSRV);// pass second texture to shader
     gCube->Render();
+
+    //bumped cube
+    gD3DContext->VSSetShader(gNormalMappingVertexShader, nullptr, 0);
+    gD3DContext->PSSetShader(gNormalMappingPixelShader, nullptr, 0);
+    gD3DContext->PSSetShaderResources(0, 1, &gPatternDiffuseSpecularMapSRV);// pass first texture to shader
+    gD3DContext->PSSetShaderResources(1, 1, &gPatternNormalMapSRV);// pass second texture to shader
+    gD3DContext->PSSetSamplers(0, 1, &gAnisotropic4xSampler);
+    gBumpedCube->Render();
+
+
 
 
     //// Render lights ////

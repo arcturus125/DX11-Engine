@@ -12,8 +12,8 @@
 struct BasicVertex
 {
     float3 position : position;
-    float3 normal   : normal;
-    float2 uv       : uv;
+    float3 normal : normal;
+    float2 uv : uv;
 };
 
 
@@ -35,6 +35,37 @@ struct LightingPixelShaderInput
     float2 uv : uv; // UVs are texture coordinates. The artist specifies for every vertex which point on the texture is "pinned" to that vertex.
 };
 
+
+
+// The structure below describes the vertex data to be sent into vertex shaders that need tangents
+//****| INFO | Models that contain tangents can only be sent into shaders that accept this structure ****//
+struct TangentVertex
+{
+    float3 position : position;
+    float3 normal : normal;
+    float3 tangent : tangent;
+    float2 uv : uv;
+};
+
+//****| INFO |*******************************************************************************************//
+// Like per-pixel lighting, normal mapping expects the vertex shader to pass over the position and normal.
+// However, it also expects the tangent (see lecturee). Furthermore the normal and tangent are left in
+// model space, i.e. they are not transformed by the world matrix in the vertex shader - just sent as is.
+// This is because the pixel shader will do the matrix transformations for normals in this case
+//*******************************************************************************************************//
+// The data sent from vertex to pixel shaders for normal mapping
+struct NormalMappingPixelShaderInput
+{
+    float4 projectedPosition : SV_Position; // This is the position of the pixel to render, this is a required input
+                                            // to the pixel shader and so it uses the special semantic "SV_Position"
+                                            // because the shader needs to identify this important information
+    
+    float3 worldPosition : worldPosition; // Data required for lighting calculations in the pixel shader
+    float3 modelNormal : modelNormal; // --"--
+    float3 modelTangent : modelTangent; // --"--
+    
+    float2 uv : uv; // UVs are texture coordinates. The artist specifies for every vertex which point on the texture is "pinned" to that vertex.
+};
 
 
 // This structure is similar to the one above but for the light models, which aren't themselves lit

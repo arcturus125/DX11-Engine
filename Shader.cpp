@@ -17,8 +17,10 @@
 // Vertex and pixel shader DirectX objects
 ID3D11VertexShader* gPixelLightingVertexShader = nullptr;
 ID3D11VertexShader* gWiggleVertexShader = nullptr;
+ID3D11VertexShader* gNormalMappingVertexShader = nullptr;
 ID3D11VertexShader* gFadingVertexShader = nullptr;
 ID3D11PixelShader* gPixelLightingPixelShader = nullptr;
+ID3D11PixelShader* gNormalMappingPixelShader = nullptr;
 ID3D11PixelShader* gWigglePixelShader = nullptr;
 ID3D11PixelShader* gFadingPixelShader = nullptr;
 ID3D11VertexShader* gBasicTransformVertexShader = nullptr;
@@ -39,15 +41,18 @@ bool LoadShaders()
     gPixelLightingVertexShader  = LoadVertexShader("PixelLighting_vs"); // Note how the shader files are named to show what type they are
     gWiggleVertexShader = LoadVertexShader("Wiggle_vs");
     gFadingVertexShader = LoadVertexShader("Fading_vs");
+    gNormalMappingVertexShader = LoadVertexShader("NormalMapping_vs");
     gPixelLightingPixelShader = LoadPixelShader("PixelLighting_ps");
     gWigglePixelShader = LoadPixelShader("Wiggle_ps");
     gFadingPixelShader = LoadPixelShader("Fading_ps");
+    gNormalMappingPixelShader = LoadPixelShader("NormalMapping_ps");
     gBasicTransformVertexShader = LoadVertexShader("BasicTransform_vs");
     gLightModelPixelShader      = LoadPixelShader ("LightModel_ps");
 
     if (gPixelLightingVertexShader  == nullptr || gPixelLightingPixelShader == nullptr ||
         gWiggleVertexShader == nullptr || gPixelLightingPixelShader == nullptr ||
         gFadingVertexShader == nullptr || gFadingPixelShader == nullptr ||
+        gNormalMappingVertexShader == nullptr || gNormalMappingPixelShader == nullptr ||
         gBasicTransformVertexShader == nullptr || gLightModelPixelShader    == nullptr)
     {
         gLastError = "Error loading shaders";
@@ -68,6 +73,8 @@ void ReleaseShaders()
     if (gPixelLightingVertexShader)   gPixelLightingVertexShader->Release();
     if (gFadingPixelShader)           gFadingPixelShader->Release();
     if (gFadingVertexShader)          gFadingVertexShader->Release();
+    if (gNormalMappingPixelShader) gNormalMappingPixelShader->Release();
+    if (gNormalMappingVertexShader) gNormalMappingVertexShader->Release();
 }
 
 
