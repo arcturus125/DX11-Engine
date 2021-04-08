@@ -76,7 +76,7 @@ struct PerFrameConstants
     float      specularPower;
 
     CVector3   cameraPosition;
-    float      padding5;
+    float      parallaxDepth;  // Depth of the parallax mapping effect
 };
 
 extern PerFrameConstants gPerFrameConstants;      // This variable holds the CPU-side constant buffer described above

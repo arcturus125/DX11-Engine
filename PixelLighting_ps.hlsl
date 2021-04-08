@@ -61,10 +61,6 @@ float4 main(LightingPixelShaderInput input) : SV_Target
 	float3 specularLight = specularLight1 + specularLight2;
 
 
-	////////////////////
-	// Combine lighting and textures
-
-    // Sample diffuse material and specular material colour for this pixel from a texture using a given sampler that you set up in the C++ code
     float4 textureColour = DiffuseSpecularMap.Sample(TexSampler, input.uv);
     float3 diffuseMaterialColour = textureColour.rgb; // Diffuse material colour in texture RGB (base colour of model)
     float specularMaterialColour = textureColour.a;   // Specular material colour in texture A (shininess of the surface)

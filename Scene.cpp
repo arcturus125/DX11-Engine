@@ -118,11 +118,18 @@ ID3D11ShaderResourceView* gLightDiffuseMapSRV = nullptr;
 ID3D11Resource*           gPatternDiffuseSpecularMap = nullptr;
 ID3D11ShaderResourceView* gPatternDiffuseSpecularMapSRV = nullptr;
 
-
 ID3D11Resource*           gPatternNormalMap = nullptr;
 ID3D11ShaderResourceView* gPatternNormalMapSRV = nullptr;
 
+ID3D11Resource*           gCobbleDiffuseSpecularMap = nullptr;
+ID3D11ShaderResourceView* gCobbleDiffuseSpecularMapSRV = nullptr;
 
+ID3D11Resource*           gCobbleNormalHeightMap = nullptr;
+ID3D11ShaderResourceView* gCobbleNormalHeightMapSRV = nullptr;
+
+
+float gParallaxDepth = 0.08f; // Overall depth of bumpiness for parallax mapping
+bool gUseParallax = true;  // Toggle for parallax 
 
 //--------------------------------------------------------------------------------------
 // Initialise scene geometry, constant buffers and states
@@ -143,7 +150,7 @@ bool InitGeometry()
                                                         //          this means that the model will use TangentVertex in common.hlsli instead of
                                                         //          BasicVertex. (meaning that normal maps can now be used on the any model using this mesh)
         gCrateMesh    = new Mesh("CargoContainer.x");
-        gGroundMesh   = new Mesh("Hills.x");
+        gGroundMesh   = new Mesh("Hills.x", true);
         gLightMesh    = new Mesh("Light.x");
     }
     catch (std::runtime_error e)  // Constructors cannot return error messages so use exceptions to catch mesh errors (fairly standard approach this)
@@ -179,9 +186,11 @@ bool InitGeometry()
     // The LoadTexture function requires you to pass a ID3D11Resource* (e.g. &gCubeDiffuseMap), which manages the GPU memory for the
     // texture and also a ID3D11ShaderResourceView* (e.g. &gCubeDiffuseMapSRV), which allows us to use the texture in shaders
     // The function will fill in these pointers with usable data. The variables used here are globals found near the top of the file.
-    if (!LoadTexture("MetalDiffuseSpecular.dds",  &gCharacterDiffuseSpecularMap, &gCharacterDiffuseSpecularMapSRV) ||
+    if (!LoadTexture("StoneDiffuseSpecular.dds",  &gCharacterDiffuseSpecularMap, &gCharacterDiffuseSpecularMapSRV) ||
         !LoadTexture("PatternDiffuseSpecular.dds",&gPatternDiffuseSpecularMap, &gPatternDiffuseSpecularMapSRV) ||
         !LoadTexture("PatternNormal.dds",         &gPatternNormalMap, &gPatternNormalMapSRV) ||
+        !LoadTexture("CobbleDiffuseSpecular.dds", &gCobbleDiffuseSpecularMap, &gCobbleDiffuseSpecularMapSRV) ||
+        !LoadTexture("CobbleNormalHeight.dds",    &gCobbleNormalHeightMap, &gCobbleNormalHeightMapSRV) ||
         !LoadTexture("WoodDiffuseSpecular.dds", &gWoodDiffuseSpecularMap, &gWoodDiffuseSpecularMapSRV) ||
         !LoadTexture("CargoA.dds",               &gCrateDiffuseSpecularMap,     &gCrateDiffuseSpecularMapSRV    ) ||
         !LoadTexture("GrassDiffuseSpecular.dds", &gGroundDiffuseSpecularMap,    &gGroundDiffuseSpecularMapSRV   ) ||
@@ -273,6 +282,10 @@ void ReleaseResources()
     if (gPatternDiffuseSpecularMap) gPatternDiffuseSpecularMap->Release();
     if (gPatternNormalMapSRV) gPatternNormalMapSRV->Release();
     if (gPatternNormalMap) gPatternNormalMap->Release();
+    if (gCobbleDiffuseSpecularMap) gCobbleDiffuseSpecularMap->Release();
+    if (gCobbleDiffuseSpecularMapSRV) gCobbleDiffuseSpecularMapSRV->Release();
+    if (gCobbleNormalHeightMap) gCobbleNormalHeightMap->Release();
+    if (gCobbleNormalHeightMapSRV) gCobbleNormalHeightMapSRV->Release();
 
     if (gWoodDiffuseSpecularMap) gWoodDiffuseSpecularMap->Release();
     if (gWoodDiffuseSpecularMapSRV) gWoodDiffuseSpecularMapSRV->Release();
@@ -335,9 +348,6 @@ void RenderSceneFromCamera(Camera* camera)
     gD3DContext->PSSetShaderResources(0, 1, &gGroundDiffuseSpecularMapSRV); // First parameter must match texture slot number in the shader
     gD3DContext->PSSetSamplers(0, 1, &gAnisotropic4xSampler);
 
-    // Render model - it will update the model's world matrix and send it to the GPU in a constant buffer, then it will call
-    // the Mesh render function, which will set up vertex & index buffer before finally calling Draw on the GPU
-    gGround->Render();
 
     // Render other lit models, only change textures for each onee
     gD3DContext->PSSetShaderResources(0, 1, &gCharacterDiffuseSpecularMapSRV); 
@@ -370,6 +380,14 @@ void RenderSceneFromCamera(Camera* camera)
     gD3DContext->PSSetShaderResources(1, 1, &gPatternNormalMapSRV);// pass second texture to shader
     gD3DContext->PSSetSamplers(0, 1, &gAnisotropic4xSampler);
     gBumpedCube->Render();
+
+
+    // paralax mapped ground
+    gD3DContext->VSSetShader(gParallaxMappingVertexShader, nullptr, 0);
+    gD3DContext->PSSetShader(gParallaxMappingPixelShader, nullptr, 0);
+    gD3DContext->PSSetShaderResources(0, 1, &gCobbleDiffuseSpecularMapSRV);// pass first texture to shader
+    gD3DContext->PSSetShaderResources(1, 1, &gCobbleNormalHeightMapSRV);// pass second texture to shader
+    gGround->Render();
 
 
 
@@ -415,7 +433,7 @@ void RenderScene()
     gPerFrameConstants.ambientColour  = gAmbientColour;
     gPerFrameConstants.specularPower  = gSpecularPower;
     gPerFrameConstants.cameraPosition = gCamera->Position();
-
+    gPerFrameConstants.parallaxDepth = (gUseParallax ? gParallaxDepth : 0);
     gPerFrameConstants.padding1 = wiggleTimer;
 
 
