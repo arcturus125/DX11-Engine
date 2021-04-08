@@ -62,11 +62,13 @@ struct PerFrameConstants
     CMatrix4x4 projectionMatrix;
     CMatrix4x4 viewProjectionMatrix; // The above two matrices multiplied together to combine their effects
 
+
+    //LightData light[2];
     CVector3   light1Position; // 3 floats: x, y z
     float      padding1;       // Pad above variable to float4 (HLSL requirement - which we must duplicate in this the C++ version of the structure)
     CVector3   light1Colour;
     float      padding2;
-
+    
     CVector3   light2Position;
     float      padding3;
     CVector3   light2Colour;
@@ -77,6 +79,14 @@ struct PerFrameConstants
 
     CVector3   cameraPosition;
     float      parallaxDepth;  // Depth of the parallax mapping effect
+};
+
+struct LightData
+{
+    CVector3   lightPosition;   // 3 floats: x, y z
+    float      padding1;       // Pad above variable to float4 (HLSL requirement - which we must duplicate in this the C++ version of the structure)
+    CVector3   lightColour;
+    float      padding2;
 };
 
 extern PerFrameConstants gPerFrameConstants;      // This variable holds the CPU-side constant buffer described above

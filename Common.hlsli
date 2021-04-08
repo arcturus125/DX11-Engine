@@ -5,10 +5,10 @@
 
 
 //--------------------------------------------------------------------------------------
-// Shader input / output
+// Vertex shader inputs 
 //--------------------------------------------------------------------------------------
 
-// The structure below describes the vertex data to be sent into the vertex shader.
+// this is the default data set that is sent to the vertex shaders
 struct BasicVertex
 {
     float3 position : position;
@@ -16,11 +16,21 @@ struct BasicVertex
     float2 uv : uv;
 };
 
+// when a mesh is loaded from file, you can request that the mesh calculate tangents.
+// if you tell the mesh to calculate tangents, the model will pass this data sset to the vertex shader instead of the one above
+struct TangentVertex
+{
+    float3 position : position;
+    float3 normal : normal;
+    float3 tangent : tangent;
+    float2 uv : uv;
+};
 
-// This structure describes what data the lighting pixel shader receives from the vertex shader.
-// The projected position is a required output from all vertex shaders - where the vertex is on the screen
-// The world position and normal at the vertex are sent to the pixel shader for the lighting equations.
-// The texture coordinates (uv) are passed from vertex shader to pixel shader unchanged to allow textures to be sampled
+//--------------------------------------------------------------------------------------
+// Pixel shader inputs  (vertex shader outputs)
+//--------------------------------------------------------------------------------------
+
+// this is the default data set sent to the Pixel shaders
 struct LightingPixelShaderInput
 {
     float4 projectedPosition : SV_Position; // This is the position of the pixel to render, this is a required input
@@ -35,25 +45,7 @@ struct LightingPixelShaderInput
     float2 uv : uv; // UVs are texture coordinates. The artist specifies for every vertex which point on the texture is "pinned" to that vertex.
 };
 
-
-
-// The structure below describes the vertex data to be sent into vertex shaders that need tangents
-//****| INFO | Models that contain tangents can only be sent into shaders that accept this structure ****//
-struct TangentVertex
-{
-    float3 position : position;
-    float3 normal : normal;
-    float3 tangent : tangent;
-    float2 uv : uv;
-};
-
-//****| INFO |*******************************************************************************************//
-// Like per-pixel lighting, normal mapping expects the vertex shader to pass over the position and normal.
-// However, it also expects the tangent (see lecturee). Furthermore the normal and tangent are left in
-// model space, i.e. they are not transformed by the world matrix in the vertex shader - just sent as is.
-// This is because the pixel shader will do the matrix transformations for normals in this case
-//*******************************************************************************************************//
-// The data sent from vertex to pixel shaders for normal mapping
+// this is the data set that will be sent to pixel shaders that require tangents to be calulated
 struct NormalMappingPixelShaderInput
 {
     float4 projectedPosition : SV_Position; // This is the position of the pixel to render, this is a required input

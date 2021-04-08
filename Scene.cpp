@@ -22,6 +22,7 @@
 
 #include <sstream>
 #include <memory>
+#include "Light.h"
 
 
 //--------------------------------------------------------------------------------------
@@ -56,12 +57,12 @@ Camera* gCamera;
 
 // Store lights in an array in this exercise
 const int NUM_LIGHTS = 2;
-struct Light
-{
-    Model*   model;
-    CVector3 colour;
-    float    strength;
-};
+//struct Light
+//{
+//    Model*   model;
+//    CVector3 colour;
+//    float    strength;
+//};
 Light gLights[NUM_LIGHTS]; 
 
 

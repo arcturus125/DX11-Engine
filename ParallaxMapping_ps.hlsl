@@ -135,10 +135,10 @@ float4 main(NormalMappingPixelShaderInput input) : SV_Target
     // Ignoring any alpha in the texture, just reading RGB
     float4 textureColour = DiffuseSpecularMap.Sample(TexSampler, offsetTexCoord); // Use offset texture coordinate from parallax mapping
     float3 diffuseMaterialColour = textureColour.rgb;
-    float specularMaterialColour = textureColour.a;
+    float specularMaterialColour = textureColour.a; // instead of using alpha for blending, we use it as a float for "shininess" of each pixel
 
     float3 finalColour = (gAmbientColour + diffuseLight1 + diffuseLight2) * diffuseMaterialColour + 
                          (specularLight1 + specularLight2) * specularMaterialColour;
 
-    return float4(finalColour, 1.0f); // Always use 1.0f for alpha - no alpha blending in this lab
+    return float4(finalColour, 1.0f);
 }
