@@ -22,7 +22,7 @@
 
 #include <sstream>
 #include <memory>
-#include "Light.h"
+//#include "Light.h"
 
 
 //--------------------------------------------------------------------------------------
@@ -48,6 +48,7 @@ Mesh* gLightMesh;
 Model* gTeapot;
 Model* gSphere;
 Model* gCube;
+Model* gTest;
 Model* gBumpedCube;
 Model* gCrate;
 Model* gGround;
@@ -55,15 +56,8 @@ Model* gGround;
 Camera* gCamera;
 
 
-// Store lights in an array in this exercise
 const int NUM_LIGHTS = 2;
-//struct Light
-//{
-//    Model*   model;
-//    CVector3 colour;
-//    float    strength;
-//};
-Light gLights[NUM_LIGHTS]; 
+Light* gLights[NUM_LIGHTS]; 
 
 
 // Additional light information
@@ -225,13 +219,15 @@ bool InitScene()
     gBumpedCube = new Model(gBumpedCubeMesh);
     gCrate    = new Model(gCrateMesh);
     gGround   = new Model(gGroundMesh);
+    gTest = new Model(gCubeMesh);
 
 
 	// Initial positions
 	gTeapot->SetPosition({ 20, 0, 0 });
     gTeapot->SetScale(1); 
     gTeapot->SetRotation({ 0, ToRadians(135.0f), 0 });
-    gSphere->  SetPosition({ 10,10,10 });
+    gSphere->SetPosition({ 10,10,10 });
+    gTest->SetPosition({ 10,20,10 });
     gCube->SetPosition({ 30,20,10 });
     gBumpedCube->SetPosition({ 60,30,20 });
 	gCrate-> SetPosition({ 45, 0, 45 });
@@ -242,18 +238,19 @@ bool InitScene()
     // Light set-up - using an array this time
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
-        gLights[i].model = new Model(gLightMesh);
+        gLights[i] = new Light();
+        gLights[i]->model = new Model(gLightMesh);
     }
 
-    gLights[0].colour = { 0.8f, 0.8f, 1.0f };
-    gLights[0].strength = 10;
-    gLights[0].model->SetPosition({ 30, 20, 0 });
-    gLights[0].model->SetScale(pow(gLights[0].strength, 0.7f)); // Convert light strength into a nice value for the scale of the light - equation is ad-hoc.
+    gLights[0]->colour = { 0.8f, 0.8f, 1.0f };
+    gLights[0]->strength = 10;
+    gLights[0]->model->SetPosition({ 30, 20, 0 });
+    gLights[0]->model->SetScale(pow(gLights[0]->strength, 0.7f)); // Convert light strength into a nice value for the scale of the light - equation is ad-hoc.
 
-    gLights[1].colour = { 1.0f, 0.8f, 0.2f };
-    gLights[1].strength = 40;
-    gLights[1].model->SetPosition({ -20, 50, 20 });
-    gLights[1].model->SetScale(pow(gLights[1].strength, 0.7f));
+    gLights[1]->colour = { 1.0f, 0.8f, 0.2f };
+    gLights[1]->strength = 40;
+    gLights[1]->model->SetPosition({ -20, 50, 20 });
+    gLights[1]->model->SetScale(pow(gLights[1]->strength, 0.7f));
 
 
     //// Set up camera ////
@@ -299,7 +296,8 @@ void ReleaseResources()
     // See note in InitGeometry about why we're not using unique_ptr and having to manually delete
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
-        delete gLights[i].model;  gLights[i].model = nullptr;
+        delete gLights[i]->model;  gLights[i]->model = nullptr;
+        delete gLights[i];
     }
     delete gCamera;    gCamera    = nullptr;
     delete gGround;    gGround    = nullptr;
@@ -348,6 +346,10 @@ void RenderSceneFromCamera(Camera* camera)
     // Select the approriate textures and sampler to use in the pixel shader
     gD3DContext->PSSetShaderResources(0, 1, &gGroundDiffuseSpecularMapSRV); // First parameter must match texture slot number in the shader
     gD3DContext->PSSetSamplers(0, 1, &gAnisotropic4xSampler);
+
+
+    gD3DContext->PSSetShaderResources(0, 1, &gWoodDiffuseSpecularMapSRV);// pass second texture to shader
+    gTest->Render();
 
 
     // Render other lit models, only change textures for each onee
@@ -411,8 +413,8 @@ void RenderSceneFromCamera(Camera* camera)
     // Render all the lights in the array
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
-        gPerModelConstants.objectColour = gLights[i].colour; // Set any per-model constants apart from the world matrix just before calling render (light colour here)
-        gLights[i].model->Render();
+        gPerModelConstants.objectColour = gLights[i]->colour; // Set any per-model constants apart from the world matrix just before calling render (light colour here)
+        gLights[i]->model->Render();
     }
 }
 
@@ -426,16 +428,21 @@ void RenderScene()
 
     // Set up the light information in the constant buffer
     // Don't send to the GPU yet, the function RenderSceneFromCamera will do that
-    gPerFrameConstants.light1Colour   = gLights[0].colour * gLights[0].strength;
+    for (int i = 0; i < NUM_LIGHTS; i++)
+    {
+        gPerFrameConstants.light[i] = gLights[i]->getLightingData();
+    }
+    /*gPerFrameConstants.light1Colour   = gLights[0].colour * gLights[0].strength;
     gPerFrameConstants.light1Position = gLights[0].model->Position();
     gPerFrameConstants.light2Colour   = gLights[1].colour * gLights[1].strength;
-    gPerFrameConstants.light2Position = gLights[1].model->Position();
+    gPerFrameConstants.light2Position = gLights[1].model->Position();*/
 
     gPerFrameConstants.ambientColour  = gAmbientColour;
     gPerFrameConstants.specularPower  = gSpecularPower;
     gPerFrameConstants.cameraPosition = gCamera->Position();
     gPerFrameConstants.parallaxDepth = (gUseParallax ? gParallaxDepth : 0);
-    gPerFrameConstants.padding1 = wiggleTimer;
+    gPerFrameConstants.timer = wiggleTimer;
+    gPerFrameConstants.numLights = NUM_LIGHTS;
 
 
 
@@ -492,7 +499,7 @@ void UpdateScene(float frameTime)
     // Orbit the light - a bit of a cheat with the static variable [ask the tutor if you want to know what this is]
 	static float rotate = 0.0f;
     static bool go = true;
-	gLights[0].model->SetPosition( gTeapot->Position() + CVector3{ cos(rotate) * gLightOrbit, 10, sin(rotate) * gLightOrbit } );
+	gLights[0]->model->SetPosition( gTeapot->Position() + CVector3{ cos(rotate) * gLightOrbit, 10, sin(rotate) * gLightOrbit } );
     if (go)  rotate -= gLightOrbitSpeed * frameTime;
     if (KeyHit(Key_1))  go = !go;
 
@@ -524,18 +531,18 @@ void UpdateScene(float frameTime)
     }
 
     // MYCODE
-    gLights[1].strength -= 0.2 * strengthMultiplier; // 40%
-    if (gLights[1].strength <= 0)                    // make one light pulsate on and off
-        strengthMultiplier = -1;                     //
-    else if (gLights[1].strength >= 200)             //
-        strengthMultiplier = 1;                      //
+    gLights[1]->strength -= 0.2f * strengthMultiplier; // 40%
+    if (gLights[1]->strength <= 0)                    // make one light pulsate on and off
+        strengthMultiplier = -1;                      //
+    else if (gLights[1]->strength >= 200)             //
+        strengthMultiplier = 1;                       //
 
 
 
-    gLights[0].colour.x -= 0.003 * colourMultiplier; // 40%
-    if (gLights[0].colour.x <= 0)                    // make the other light gradually change colour between blue and white
-        colourMultiplier = -1;                       //
-    else if (gLights[0].colour.x >= 1)               //
-        colourMultiplier = 1;                        //
+    gLights[0]->colour.x -= 0.003f  * colourMultiplier; // 40%
+    if (gLights[0]->colour.x <= 0)                    // make the other light gradually change colour between blue and white
+        colourMultiplier = -1;                        //
+    else if (gLights[0]->colour.x >= 1)               //
+        colourMultiplier = 1;                         //
 
 }

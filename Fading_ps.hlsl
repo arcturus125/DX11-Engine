@@ -36,35 +36,32 @@ float4 main(LightingPixelShaderInput input) : SV_Target
     // Direction from pixel to camera
     float3 cameraDirection = normalize(gCameraPosition - input.worldPosition);
 
-	//// Light 1 ////
-
-	// Direction and distance from pixel to light
-	float3 light1Direction = normalize(gLight1Position - input.worldPosition);
-    float3 light1Dist = length(gLight1Position - input.worldPosition);
+	 //// multiple lights ////
+    float3 sumOfDiffuse = 0;
+    float3 sumOfSpecular = 0;
+    for (int i = 0; i < gNumLights; i++)
+    {
+        // Direction and distance from pixel to light
+        float3 lightDirection = normalize(light[i].lightPosition - input.worldPosition);
+        float3 lightDist = length(light[i].lightPosition - input.worldPosition);
     
-    // Equations from lighting lecture
-    float3 diffuseLight1 = gLight1Colour * max(dot(input.worldNormal, light1Direction), 0) / (light1Dist * 3); // multiploying by 3 increases the attenuation - makes the lighting smoother
-    float3 halfway = normalize(light1Direction + cameraDirection);
-    float3 specularLight1 =  diffuseLight1 * pow(max(dot(input.worldNormal, halfway), 0), gSpecularPower); // Multiplying by diffuseLight instead of light colour - my own personal preference
+        // Equations from lighting lecture
+        float3 DiffuseLight = light[i].lightColour * max(dot(input.worldNormal, lightDirection), 0) / (lightDist * 3); // multiploying by 3 increases the attenuation - makes the lighting smoother
+        float3 halfway = normalize(lightDirection + cameraDirection);
+        float3 SpecularLight = DiffuseLight * pow(max(dot(input.worldNormal, halfway), 0), gSpecularPower); // Multiplying by diffuseLight instead of light colour - my own personal preference
 
-
-	//// Light 2 ////
-
-	float3 light2Direction = normalize(gLight2Position - input.worldPosition);
-    float3 light2Dist = length(gLight2Position - input.worldPosition);
-    float3 diffuseLight2 = gLight2Colour * max(dot(input.worldNormal, light2Direction), 0) / (light2Dist * 3); // multiploying by 3 increases the attenuation - makes the lighting smoother
-    halfway = normalize(light2Direction + cameraDirection);
-    float3 specularLight2 =  diffuseLight2 * pow(max(dot(input.worldNormal, halfway), 0), gSpecularPower);
-
-
+        sumOfDiffuse += DiffuseLight;
+        sumOfSpecular += SpecularLight;
+    }
+    
 	// Sum the effect of the lights - add the ambient at this stage rather than for each light (or we will get too much ambient)
-	float3 diffuseLight = gAmbientColour + diffuseLight1 + diffuseLight2;
-	float3 specularLight = specularLight1 + specularLight2;
+    float3 diffuseLight = gAmbientColour + sumOfDiffuse;
+    float3 specularLight = sumOfSpecular;
 
 
 	////////////////////
 	// Combine lighting and textures
-    float temp = sin(padding1);
+    float temp = sin(gtimer);
 
     // Sample diffuse material and specular material colour for this pixel from a texture using a given sampler that you set up in the C++ code
     float4 textureColour = DiffuseSpecularMap.Sample(TexSampler, input.uv) * temp + DiffuseSpecularMap2.Sample(TexSampler, input.uv) * (1 - temp);

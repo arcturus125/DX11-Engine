@@ -25,7 +25,7 @@ LightingPixelShaderInput main(BasicVertex modelVertex)
     // Multiply by the world matrix passed from C++ to transform the model vertex position into world space. 
     // In a similar way use the view matrix to transform the vertex from world space into view space (camera's point of view)
     // and then use the projection matrix to transform the vertex to 2D projection space (project onto the 2D screen)
-    float4 worldPosition = mul(gWorldMatrix, (modelPosition + sin(padding1) + 1));
+    float4 worldPosition = mul(gWorldMatrix, (modelPosition + sin(gtimer) + 1));
     float4 viewPosition      = mul(gViewMatrix,       worldPosition);
     output.projectedPosition = mul(gProjectionMatrix, viewPosition);
 

@@ -72,28 +72,50 @@ float4 main(NormalMappingPixelShaderInput input) : SV_Target
 
 	///////////////////////
 	// Calculate lighting
-
+	
    // Lighting equations
     float3 cameraDirection = normalize(gCameraPosition - input.worldPosition);
+	
+	//// multiple lights ////
+    float3 sumOfDiffuse = 0;
+    float3 sumOfSpecular = 0;
+    for (int i = 0; i < gNumLights; i++)
+    {
+        // Direction and distance from pixel to light
+        float3 lightDirection = normalize(light[i].lightPosition - input.worldPosition);
+        float3 lightDist = length(light[i].lightPosition - input.worldPosition);
+    
+        // Equations from lighting lecture
+        float3 DiffuseLight = light[i].lightColour * max(dot(worldNormal, lightDirection), 0) / (lightDist * 3); // multiploying by 3 increases the attenuation - makes the lighting smoother
+        float3 halfway = normalize(lightDirection + cameraDirection);
+        float3 SpecularLight = DiffuseLight * pow(max(dot(worldNormal, halfway), 0), gSpecularPower); // Multiplying by diffuseLight instead of light colour - my own personal preference
 
-    // Light 1
-    float3 light1Vector = gLight1Position - input.worldPosition;
-    float light1Distance = length(light1Vector);
-    float3 light1Direction = light1Vector / light1Distance; // Quicker than normalising as we have length for attenuation
-    float3 diffuseLight1 = gLight1Colour * max(dot(worldNormal, light1Direction), 0) / light1Distance;
+        sumOfDiffuse += DiffuseLight;
+        sumOfSpecular += SpecularLight;
+    }
+    
+	// Sum the effect of the lights - add the ambient at this stage rather than for each light (or we will get too much ambient)
+    //float3 diffuseLight = gAmbientColour + sumOfDiffuse;
+    //float3 specularLight = sumOfSpecular;
 
-    float3 halfway = normalize(light1Direction + cameraDirection);
-    float3 specularLight1 = diffuseLight1 * pow(max(dot(worldNormal, halfway), 0), gSpecularPower);
+   // // Light 1
+   // float3 light1Vector = gLight1Position - input.worldPosition;
+   // float light1Distance = length(light1Vector);
+   // float3 light1Direction = light1Vector / light1Distance; // Quicker than normalising as we have length for attenuation
+   // float3 diffuseLight1 = gLight1Colour * max(dot(worldNormal, light1Direction), 0) / light1Distance;
+
+   // float3 halfway = normalize(light1Direction + cameraDirection);
+   // float3 specularLight1 = diffuseLight1 * pow(max(dot(worldNormal, halfway), 0), gSpecularPower);
 
 
-    // Light 2
-    float3 light2Vector = gLight2Position - input.worldPosition;
-    float light2Distance = length(light2Vector);
-    float3 light2Direction = light2Vector / light2Distance;
-    float3 diffuseLight2 = gLight2Colour * max(dot(worldNormal, light2Direction), 0) / light2Distance;
+   // // Light 2
+   // float3 light2Vector = gLight2Position - input.worldPosition;
+   // float light2Distance = length(light2Vector);
+   // float3 light2Direction = light2Vector / light2Distance;
+   // float3 diffuseLight2 = gLight2Colour * max(dot(worldNormal, light2Direction), 0) / light2Distance;
 
-    halfway = normalize(light2Direction + cameraDirection);
-    float3 specularLight2 = diffuseLight2 * pow(max(dot(worldNormal, halfway), 0), gSpecularPower);
+   // halfway = normalize(light2Direction + cameraDirection);
+   // float3 specularLight2 = diffuseLight2 * pow(max(dot(worldNormal, halfway), 0), gSpecularPower);
 
 
 
@@ -103,8 +125,8 @@ float4 main(NormalMappingPixelShaderInput input) : SV_Target
     float3 diffuseMaterialColour = textureColour.rgb;
     float specularMaterialColour = textureColour.a;
 
-    float3 finalColour = (gAmbientColour + diffuseLight1 + diffuseLight2) * diffuseMaterialColour +
-                         (specularLight1 + specularLight2) * specularMaterialColour;
+    float3 finalColour = (gAmbientColour + sumOfDiffuse) * diffuseMaterialColour +
+                         (sumOfSpecular) * specularMaterialColour;
 
     return float4(finalColour, 1.0f); // Always use 1.0f for alpha - no alpha blending in this lab
 }

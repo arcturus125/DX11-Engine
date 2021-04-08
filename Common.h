@@ -11,6 +11,7 @@
 
 #include "CVector3.h"
 #include "CMatrix4x4.h"
+#include "Light.h"
 
 
 //--------------------------------------------------------------------------------------
@@ -63,31 +64,21 @@ struct PerFrameConstants
     CMatrix4x4 viewProjectionMatrix; // The above two matrices multiplied together to combine their effects
 
 
-    //LightData light[2];
-    CVector3   light1Position; // 3 floats: x, y z
-    float      padding1;       // Pad above variable to float4 (HLSL requirement - which we must duplicate in this the C++ version of the structure)
-    CVector3   light1Colour;
-    float      padding2;
-    
-    CVector3   light2Position;
-    float      padding3;
-    CVector3   light2Colour;
-    float      padding4;
+    Light::LightingData light[2];
+
+
+    float timer;
+
 
     CVector3   ambientColour;
     float      specularPower;
 
     CVector3   cameraPosition;
     float      parallaxDepth;  // Depth of the parallax mapping effect
+
+    int numLights;
 };
 
-struct LightData
-{
-    CVector3   lightPosition;   // 3 floats: x, y z
-    float      padding1;       // Pad above variable to float4 (HLSL requirement - which we must duplicate in this the C++ version of the structure)
-    CVector3   lightColour;
-    float      padding2;
-};
 
 extern PerFrameConstants gPerFrameConstants;      // This variable holds the CPU-side constant buffer described above
 extern ID3D11Buffer*     gPerFrameConstantBuffer; // This variable controls the GPU-side constant buffer matching to the above structure

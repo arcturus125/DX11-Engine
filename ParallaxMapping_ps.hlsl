@@ -109,25 +109,26 @@ float4 main(NormalMappingPixelShaderInput input) : SV_Target
 	// Calculate lighting
 
     // Lighting equations
+	
+    //// multiple lights ////
+    float3 sumOfDiffuse = 0;
+    float3 sumOfSpecular = 0;
 
-    // Light 1
-    float3 light1Vector    = gLight1Position - input.worldPosition;
-    float  light1Distance  = length(light1Vector);
-    float3 light1Direction = light1Vector / light1Distance; // Quicker than normalising as we have length for attenuation
-    float3 diffuseLight1   = gLight1Colour * max(dot(worldNormal, light1Direction), 0) / light1Distance;
+    for (int i = 0; i < gNumLights; i++)
+    {
+        float3 lightVector = light[i].lightPosition - input.worldPosition;
+        float lightDistance = length(lightVector);
+        float3 lightDirection = lightVector / lightDistance; // Quicker than normalising as we have length for attenuation
+        float3 DiffuseLight = light[i].lightColour * max(dot(worldNormal, lightDirection), 0) / lightDistance;
 
-    float3 halfway = normalize(light1Direction + cameraDirection);
-    float3 specularLight1 =  diffuseLight1 * pow(max(dot(worldNormal, halfway), 0), gSpecularPower); 
-
-
-    // Light 2
-    float3 light2Vector    = gLight2Position - input.worldPosition;
-    float  light2Distance  = length(light2Vector);
-    float3 light2Direction = light2Vector / light2Distance;
-    float3 diffuseLight2 = gLight2Colour * max(dot(worldNormal, light2Direction), 0) / light2Distance;
-
-    halfway = normalize(light2Direction + cameraDirection);
-    float3 specularLight2 =  diffuseLight2 * pow(max(dot(worldNormal, halfway), 0), gSpecularPower);
+        float3 halfway = normalize(lightDirection + cameraDirection);
+        float3 SpecularLight = DiffuseLight * pow(max(dot(worldNormal, halfway), 0), gSpecularPower);
+		
+		
+        sumOfDiffuse += DiffuseLight;
+        sumOfSpecular += SpecularLight;
+    }
+	
 
 
 
@@ -137,8 +138,8 @@ float4 main(NormalMappingPixelShaderInput input) : SV_Target
     float3 diffuseMaterialColour = textureColour.rgb;
     float specularMaterialColour = textureColour.a; // instead of using alpha for blending, we use it as a float for "shininess" of each pixel
 
-    float3 finalColour = (gAmbientColour + diffuseLight1 + diffuseLight2) * diffuseMaterialColour + 
-                         (specularLight1 + specularLight2) * specularMaterialColour;
+    float3 finalColour = (gAmbientColour + sumOfDiffuse) * diffuseMaterialColour + 
+                         (sumOfSpecular) * specularMaterialColour;
 
     return float4(finalColour, 1.0f);
 }
