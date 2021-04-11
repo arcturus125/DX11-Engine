@@ -242,11 +242,14 @@ bool InitScene()
         gLights[i]->model = new Model(gLightMesh);
     }
 
+    gLights[0]->type = Light::LightType::Spot;
     gLights[0]->colour = { 0.8f, 0.8f, 1.0f };
     gLights[0]->strength = 10;
     gLights[0]->model->SetPosition({ 30, 20, 0 });
     gLights[0]->model->SetScale(pow(gLights[0]->strength, 0.7f)); // Convert light strength into a nice value for the scale of the light - equation is ad-hoc.
 
+
+    gLights[1]->type = Light::LightType::Point;
     gLights[1]->colour = { 1.0f, 0.8f, 0.2f };
     gLights[1]->strength = 40;
     gLights[1]->model->SetPosition({ -20, 50, 20 });
@@ -428,21 +431,34 @@ void RenderScene()
 
     // Set up the light information in the constant buffer
     // Don't send to the GPU yet, the function RenderSceneFromCamera will do that
+
+    int numOfPointLights = 0;
+    int numOfSpotLights = 0;
     for (int i = 0; i < NUM_LIGHTS; i++)
     {
-        gPerFrameConstants.light[i] = gLights[i]->getLightingData();
+        if (gLights[i]->type == Light::LightType::Point) 
+        {
+            gPerFrameConstants.light[numOfPointLights] = gLights[i]->GetPointLightData();
+            numOfPointLights++; 
+        }
+        if (gLights[i]->type == Light::LightType::Spot)
+        {
+            gPerFrameConstants.spotLight[numOfSpotLights] = gLights[i]->GetSpotLightData();
+            numOfSpotLights++;
+        }
     }
-    /*gPerFrameConstants.light1Colour   = gLights[0].colour * gLights[0].strength;
-    gPerFrameConstants.light1Position = gLights[0].model->Position();
-    gPerFrameConstants.light2Colour   = gLights[1].colour * gLights[1].strength;
-    gPerFrameConstants.light2Position = gLights[1].model->Position();*/
+    /*for (int i = 0; i < NUM_LIGHTS; i++)
+    {
+        gPerFrameConstants.light[i] = gLights[i]->GetPointLightData();
+    }*/
 
     gPerFrameConstants.ambientColour  = gAmbientColour;
     gPerFrameConstants.specularPower  = gSpecularPower;
     gPerFrameConstants.cameraPosition = gCamera->Position();
     gPerFrameConstants.parallaxDepth = (gUseParallax ? gParallaxDepth : 0);
     gPerFrameConstants.timer = wiggleTimer;
-    gPerFrameConstants.numLights = NUM_LIGHTS;
+    gPerFrameConstants.numLights = numOfPointLights;
+    gPerFrameConstants.numSpotLights = numOfSpotLights;
 
 
 

@@ -64,7 +64,8 @@ struct PerFrameConstants
     CMatrix4x4 viewProjectionMatrix; // The above two matrices multiplied together to combine their effects
 
 
-    Light::LightingData light[2];
+    Light::PointLightData light[4];
+    Light::SpotLightData spotLight[4];
 
 
     float timer;
@@ -77,6 +78,7 @@ struct PerFrameConstants
     float      parallaxDepth;  // Depth of the parallax mapping effect
 
     int numLights;
+    int numSpotLights;
 };
 
 

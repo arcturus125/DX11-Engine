@@ -70,12 +70,21 @@ struct SimplePixelShaderInput
 
 
 
-struct Light
+struct PointLight
 {
     float3 lightPosition; // 3 floats: x, y z
     float lightPadding1; // Pad above variable to float4 (HLSL requirement - copied in the the C++ version of this structure)
     float3 lightColour;
     float lightPadding2;
+};
+struct SpotLight
+{
+    float3 lightPosition;
+    float padding1;
+    float3 lightColour;
+    float padding2;
+    float3 lightFacing;
+    float lightCosHalfAngle;
 };
 //--------------------------------------------------------------------------------------
 // Constant Buffers
@@ -94,7 +103,8 @@ cbuffer PerFrameConstants : register(b0) // The b0 gives this constant buffer th
     float4x4 gViewProjectionMatrix; // The above two matrices multiplied together to combine their effects
 
     
-    Light light[2];
+    PointLight light[4];
+    SpotLight spotLight[4];
     
     
     float gtimer;
@@ -106,6 +116,7 @@ cbuffer PerFrameConstants : register(b0) // The b0 gives this constant buffer th
     float  gParallaxDepth;
     
     int gNumLights;
+    int gNumSpotLights;
 }
 // Note constant buffers are not structs: we don't use the name of the constant buffer, these are really just a collection of global variables (hence the 'g')
 

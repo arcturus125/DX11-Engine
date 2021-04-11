@@ -107,10 +107,8 @@ float4 main(NormalMappingPixelShaderInput input) : SV_Target
 
 	///////////////////////
 	// Calculate lighting
-
-    // Lighting equations
+	///////////////////////
 	
-    //// multiple lights ////
     float3 sumOfDiffuse = 0;
     float3 sumOfSpecular = 0;
 
@@ -128,13 +126,35 @@ float4 main(NormalMappingPixelShaderInput input) : SV_Target
         sumOfDiffuse += DiffuseLight;
         sumOfSpecular += SpecularLight;
     }
+    for (int i = 0; i < gNumSpotLights;i++)
+    {
+        float3 DiffuseLight = 0;
+        float3 SpecularLight = 0;
+		
+		
+		// Direction from pixel to light
+        float3 lightDirection = normalize(spotLight[i].lightPosition - input.worldPosition);
+		
+        if (dot(spotLight[i].lightFacing, -lightDirection) > cos(spotLight[i].lightCosHalfAngle)) // check if pixel is within the cone of the spot light
+        {
+            float3 lightVector = light[i].lightPosition - input.worldPosition;
+            float lightDistance = length(lightVector);
+            float3 lightDirection = lightVector / lightDistance; // Quicker than normalising as we have length for attenuation
+            DiffuseLight = spotLight[i].lightColour * max(dot(worldNormal, lightDirection), 0) / lightDistance;
+
+            float3 halfway = normalize(lightDirection + cameraDirection);
+            SpecularLight = DiffuseLight * pow(max(dot(worldNormal, halfway), 0), gSpecularPower);
+        }
+        sumOfDiffuse += DiffuseLight;
+        sumOfSpecular += SpecularLight;
+    }
 	
 
 
 
     // Sample diffuse material colour for this pixel from a texture using a given sampler that you set up in the C++ code
     // Ignoring any alpha in the texture, just reading RGB
-    float4 textureColour = DiffuseSpecularMap.Sample(TexSampler, offsetTexCoord); // Use offset texture coordinate from parallax mapping
+        float4 textureColour = DiffuseSpecularMap.Sample(TexSampler, offsetTexCoord); // Use offset texture coordinate from parallax mapping
     float3 diffuseMaterialColour = textureColour.rgb;
     float specularMaterialColour = textureColour.a; // instead of using alpha for blending, we use it as a float for "shininess" of each pixel
 

@@ -72,24 +72,49 @@ float4 main(NormalMappingPixelShaderInput input) : SV_Target
 
 	///////////////////////
 	// Calculate lighting
+	///////////////////////
 	
    // Lighting equations
     float3 cameraDirection = normalize(gCameraPosition - input.worldPosition);
 	
-	//// multiple lights ////
+	
+	
     float3 sumOfDiffuse = 0;
     float3 sumOfSpecular = 0;
+
     for (int i = 0; i < gNumLights; i++)
     {
-        // Direction and distance from pixel to light
-        float3 lightDirection = normalize(light[i].lightPosition - input.worldPosition);
-        float3 lightDist = length(light[i].lightPosition - input.worldPosition);
-    
-        // Equations from lighting lecture
-        float3 DiffuseLight = light[i].lightColour * max(dot(worldNormal, lightDirection), 0) / (lightDist * 3); // multiploying by 3 increases the attenuation - makes the lighting smoother
-        float3 halfway = normalize(lightDirection + cameraDirection);
-        float3 SpecularLight = DiffuseLight * pow(max(dot(worldNormal, halfway), 0), gSpecularPower); // Multiplying by diffuseLight instead of light colour - my own personal preference
+        float3 lightVector = light[i].lightPosition - input.worldPosition;
+        float lightDistance = length(lightVector);
+        float3 lightDirection = lightVector / lightDistance; // Quicker than normalising as we have length for attenuation
+        float3 DiffuseLight = light[i].lightColour * max(dot(worldNormal, lightDirection), 0) / lightDistance;
 
+        float3 halfway = normalize(lightDirection + cameraDirection);
+        float3 SpecularLight = DiffuseLight * pow(max(dot(worldNormal, halfway), 0), gSpecularPower);
+		
+		
+        sumOfDiffuse += DiffuseLight;
+        sumOfSpecular += SpecularLight;
+    }
+    for (int i = 0; i < gNumSpotLights; i++)
+    {
+        float3 DiffuseLight = 0;
+        float3 SpecularLight = 0;
+		
+		
+		// Direction from pixel to light
+        float3 lightDirection = normalize(spotLight[i].lightPosition - input.worldPosition);
+		
+        if (dot(spotLight[i].lightFacing, -lightDirection) > cos(spotLight[i].lightCosHalfAngle)) // check if pixel is within the cone of the spot light
+        {
+            float3 lightVector = light[i].lightPosition - input.worldPosition;
+            float lightDistance = length(lightVector);
+            float3 lightDirection = lightVector / lightDistance; // Quicker than normalising as we have length for attenuation
+            DiffuseLight = spotLight[i].lightColour * max(dot(worldNormal, lightDirection), 0) / lightDistance;
+
+            float3 halfway = normalize(lightDirection + cameraDirection);
+            SpecularLight = DiffuseLight * pow(max(dot(worldNormal, halfway), 0), gSpecularPower);
+        }
         sumOfDiffuse += DiffuseLight;
         sumOfSpecular += SpecularLight;
     }

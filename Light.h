@@ -12,19 +12,39 @@ class Model;
 class Light
 {
 public:
-    struct LightingData
+    struct PointLightData
     {
         CVector3   lightPosition;
         float      padding1;      
         CVector3   lightColour;
         float      padding2;
     };
+    struct SpotLightData
+    {
+        CVector3   lightPosition;
+        float      padding1;
+        CVector3   lightColour;
+        float      padding2;
+        CVector3 lightFacing;
+        float lightCosHalfAngle;
+    };
 
+    enum class LightType
+    {
+        Point,
+        Spot
+    };
+
+    LightType type;
     Model* model;
     CVector3 colour;
     float    strength;
+   
+    // spot light attributes
+    float SpotLight_ConeAngle = 90.0f;
 
-    LightingData getLightingData();
+    PointLightData GetPointLightData();
+    SpotLightData GetSpotLightData();
 
 
 };
