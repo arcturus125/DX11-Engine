@@ -25,8 +25,8 @@ public:
         float      padding1;
         CVector3   lightColour;
         float      padding2;
-        CVector3 lightFacing;
-        float lightCosHalfAngle;
+        CVector3   lightFacing;
+        float      lightCosHalfAngle;
     };
 
     enum class LightType
