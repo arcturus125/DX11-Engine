@@ -9,82 +9,69 @@
 #include <d3dcompiler.h>
 
 //--------------------------------------------------------------------------------------
-// Global Variables
+// Shader Class
 //--------------------------------------------------------------------------------------
-// Globals used to keep code simpler, but try to architect your own code in a better way
-//**** Update Shader.h if you add things here ****//
-
-// Vertex and pixel shader DirectX objects
-ID3D11VertexShader* gPixelLightingVertexShader = nullptr;
-ID3D11VertexShader* gWiggleVertexShader = nullptr;
-ID3D11VertexShader* gNormalMappingVertexShader = nullptr;
-ID3D11VertexShader* gParallaxMappingVertexShader = nullptr;
-ID3D11VertexShader* gFadingVertexShader = nullptr;
-ID3D11PixelShader* gPixelLightingPixelShader = nullptr;
-ID3D11PixelShader* gNormalMappingPixelShader = nullptr;
-ID3D11PixelShader* gParallaxMappingPixelShader = nullptr;
-ID3D11PixelShader* gWigglePixelShader = nullptr;
-ID3D11PixelShader* gFadingPixelShader = nullptr;
-ID3D11VertexShader* gBasicTransformVertexShader = nullptr;
-ID3D11PixelShader*  gLightModelPixelShader  = nullptr;
 
 
-
-//--------------------------------------------------------------------------------------
-// Shader creation / destruction
-//--------------------------------------------------------------------------------------
+Shader::Shader(std::string shaderfileName, bool loadPixelShader, bool loadVertexShader)
+{
+    if (!LoadShaders(shaderfileName, loadPixelShader, loadVertexShader))
+    {
+        throw std::runtime_error(gLastError);
+    }
+}
 
 // Load shaders required for this app, returns true on success
-bool LoadShaders()
+bool Shader::LoadShaders(std::string shaderfileName, bool loadPixelShader, bool loadVertexShader)
 {
-    // Shaders must be added to the Visual Studio project to be compiled, they use the extension ".hlsl".
-    // To load them for use, include them here without the extension. Use the correct function for each.
-    // Ensure you release the shaders in the ShutdownDirect3D function below
-    gPixelLightingVertexShader  = LoadVertexShader("PixelLighting_vs"); // Note how the shader files are named to show what type they are
-    gWiggleVertexShader = LoadVertexShader("Wiggle_vs");
-    gFadingVertexShader = LoadVertexShader("Fading_vs");
-    gNormalMappingVertexShader = LoadVertexShader("NormalMapping_vs");
-    gParallaxMappingVertexShader = LoadVertexShader("ParallaxMapping_vs");
-    gPixelLightingPixelShader = LoadPixelShader("PixelLighting_ps");
-    gWigglePixelShader = LoadPixelShader("Wiggle_ps");
-    gFadingPixelShader = LoadPixelShader("Fading_ps");
-    gNormalMappingPixelShader = LoadPixelShader("NormalMapping_ps");
-    gParallaxMappingPixelShader = LoadPixelShader("ParallaxMapping_ps");
-    gBasicTransformVertexShader = LoadVertexShader("BasicTransform_vs");
-    gLightModelPixelShader      = LoadPixelShader ("LightModel_ps");
-
-    if (gPixelLightingVertexShader  == nullptr || gPixelLightingPixelShader == nullptr ||
-        gWiggleVertexShader == nullptr || gPixelLightingPixelShader == nullptr ||
-        gFadingVertexShader == nullptr || gFadingPixelShader == nullptr ||
-        gNormalMappingVertexShader == nullptr || gNormalMappingPixelShader == nullptr ||
-        gParallaxMappingVertexShader == nullptr || gParallaxMappingPixelShader == nullptr ||
-        gBasicTransformVertexShader == nullptr || gLightModelPixelShader    == nullptr)
+    if (loadPixelShader)
     {
-        gLastError = "Error loading shaders";
-        return false;
+        std::string ps_path = shaderfileName + "_ps";
+        pixelShader = LoadPixelShader(ps_path); 
+        if (pixelShader == nullptr)
+        {
+            gLastError = " Error loading Pixel Shader: " + ps_path;
+            return false;
+        }
     }
+    else
+    {
+        pixelShader = LoadPixelShader("PixelLighting_ps");
+    }
+
+
+    if (loadVertexShader)
+    {
+        std::string vs_path = shaderfileName + "_vs";
+        vertexShader = LoadVertexShader(vs_path); 
+        if (vertexShader == nullptr)
+        {
+            gLastError = " Error loading Vertex Shader: " + vs_path;
+            return false;
+        }
+    }
+    else
+    {
+        vertexShader = LoadVertexShader("PixelLighting_vs");
+    }
+
+    
+    
 
     return true;
 }
 
 
-void ReleaseShaders()
+void Shader::ReleaseShaders()
 {
-    if (gLightModelPixelShader)       gLightModelPixelShader->Release();
-    if (gBasicTransformVertexShader)  gBasicTransformVertexShader->Release();
-    if (gPixelLightingPixelShader)    gPixelLightingPixelShader->Release();
-    if (gWigglePixelShader)           gWigglePixelShader->Release();
-    if (gWiggleVertexShader)          gWiggleVertexShader->Release();
-    if (gParallaxMappingPixelShader) gParallaxMappingPixelShader->Release();
-    if (gParallaxMappingVertexShader) gParallaxMappingVertexShader->Release();
-    if (gPixelLightingVertexShader)   gPixelLightingVertexShader->Release();
-    if (gFadingPixelShader)           gFadingPixelShader->Release();
-    if (gFadingVertexShader)          gFadingVertexShader->Release();
-    if (gNormalMappingPixelShader) gNormalMappingPixelShader->Release();
-    if (gNormalMappingVertexShader) gNormalMappingVertexShader->Release();
+    if (pixelShader) pixelShader->Release();
+    if (vertexShader) vertexShader->Release();
 }
 
 
+//--------------------------------------------------------------------------------------
+// Helper functions
+//--------------------------------------------------------------------------------------
 
 // Load a vertex shader, include the file in the project and pass the name (without the .hlsl extension)
 // to this function. The returned pointer needs to be released before quitting. Returns nullptr on failure. 

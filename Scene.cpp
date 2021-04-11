@@ -22,6 +22,7 @@
 
 #include <sstream>
 #include <memory>
+#include "Texture.h"
 //#include "Light.h"
 
 
@@ -93,34 +94,34 @@ ID3D11Buffer*     gPerModelConstantBuffer; // --"--
 //--------------------------------------------------------------------------------------
 // Textures
 //--------------------------------------------------------------------------------------
+std::vector <Texture*> textures;
 
-// DirectX objects controlling textures used in this lab
-ID3D11Resource*           gCharacterDiffuseSpecularMap    = nullptr; // This object represents the memory used by the texture on the GPU
-ID3D11ShaderResourceView* gCharacterDiffuseSpecularMapSRV = nullptr; // This object is used to give shaders access to the texture above (SRV = shader resource view)
+Texture* characterTexture = nullptr;
+Texture* woodTexture = nullptr;
+Texture* crateTexture = nullptr;
+Texture* grassTexture = nullptr;
+Texture* lightTexture = nullptr;
+Texture* patternTexture = nullptr;
+Texture* paternNormalMap = nullptr;
+Texture* cobbleTexture = nullptr;
+Texture* cobbleNormalMap = nullptr;
 
-ID3D11Resource*           gWoodDiffuseSpecularMap = nullptr;
-ID3D11ShaderResourceView* gWoodDiffuseSpecularMapSRV = nullptr;
 
-ID3D11Resource*           gCrateDiffuseSpecularMap    = nullptr;
-ID3D11ShaderResourceView* gCrateDiffuseSpecularMapSRV = nullptr;
 
-ID3D11Resource*           gGroundDiffuseSpecularMap    = nullptr;
-ID3D11ShaderResourceView* gGroundDiffuseSpecularMapSRV = nullptr;
+//--------------------------------------------------------------------------------------
+// Shaders
+//--------------------------------------------------------------------------------------
+std::vector <Shader*> shaders;
 
-ID3D11Resource*           gLightDiffuseMap    = nullptr;
-ID3D11ShaderResourceView* gLightDiffuseMapSRV = nullptr;
+Shader* wiggleShader            = nullptr;
+Shader* fadingShader            = nullptr;
+Shader* normalMappingShader     = nullptr;
+Shader* parallaxMappingShader   = nullptr;
+Shader* defaultShader           = nullptr;
 
-ID3D11Resource*           gPatternDiffuseSpecularMap = nullptr;
-ID3D11ShaderResourceView* gPatternDiffuseSpecularMapSRV = nullptr;
-
-ID3D11Resource*           gPatternNormalMap = nullptr;
-ID3D11ShaderResourceView* gPatternNormalMapSRV = nullptr;
-
-ID3D11Resource*           gCobbleDiffuseSpecularMap = nullptr;
-ID3D11ShaderResourceView* gCobbleDiffuseSpecularMapSRV = nullptr;
-
-ID3D11Resource*           gCobbleNormalHeightMap = nullptr;
-ID3D11ShaderResourceView* gCobbleNormalHeightMapSRV = nullptr;
+Shader* AlphaBlendingShader     = nullptr;
+Shader* BasicTransformShader    = nullptr;
+Shader* LightModelShader        = nullptr;
 
 
 float gParallaxDepth = 0.08f; // Overall depth of bumpiness for parallax mapping
@@ -155,10 +156,35 @@ bool InitGeometry()
     }
 
 
-    // Load the shaders required for the geometry we will use (see Shader.cpp / .h)
-    if (!LoadShaders())
+    // #############################
+    //  load shaders
+    // #############################
+
+    try
     {
-        gLastError = "Error loading shaders";
+        wiggleShader = new Shader("Wiggle");
+        fadingShader = new Shader("Fading");
+        normalMappingShader = new Shader("NormalMapping");
+        parallaxMappingShader = new Shader("ParallaxMapping");
+        defaultShader = new Shader("PixelLighting");
+
+        AlphaBlendingShader = new Shader("AlphaBlending", true, false);
+        BasicTransformShader = new Shader("BasicTransform", false, true);
+        LightModelShader = new Shader("LightModel", true, false);
+
+        shaders.push_back(wiggleShader);
+        shaders.push_back(fadingShader);
+        shaders.push_back(normalMappingShader);
+        shaders.push_back(parallaxMappingShader);
+        shaders.push_back(defaultShader);
+        shaders.push_back(AlphaBlendingShader);
+        shaders.push_back(BasicTransformShader);
+        shaders.push_back(LightModelShader);
+
+    }
+    catch (std::runtime_error e)  // Constructors cannot return error messages so use exceptions to catch mesh errors (fairly standard approach this)
+    {
+        gLastError = e.what(); // This picks up the error message put in the exception (see Mesh.cpp)
         return false;
     }
 
@@ -175,23 +201,36 @@ bool InitGeometry()
     }
 
 
-    //// Load / prepare textures on the GPU ////
 
-    // Load textures and create DirectX objects for them
-    // The LoadTexture function requires you to pass a ID3D11Resource* (e.g. &gCubeDiffuseMap), which manages the GPU memory for the
-    // texture and also a ID3D11ShaderResourceView* (e.g. &gCubeDiffuseMapSRV), which allows us to use the texture in shaders
-    // The function will fill in these pointers with usable data. The variables used here are globals found near the top of the file.
-    if (!LoadTexture("StoneDiffuseSpecular.dds",  &gCharacterDiffuseSpecularMap, &gCharacterDiffuseSpecularMapSRV) ||
-        !LoadTexture("PatternDiffuseSpecular.dds",&gPatternDiffuseSpecularMap, &gPatternDiffuseSpecularMapSRV) ||
-        !LoadTexture("PatternNormal.dds",         &gPatternNormalMap, &gPatternNormalMapSRV) ||
-        !LoadTexture("CobbleDiffuseSpecular.dds", &gCobbleDiffuseSpecularMap, &gCobbleDiffuseSpecularMapSRV) ||
-        !LoadTexture("CobbleNormalHeight.dds",    &gCobbleNormalHeightMap, &gCobbleNormalHeightMapSRV) ||
-        !LoadTexture("WoodDiffuseSpecular.dds", &gWoodDiffuseSpecularMap, &gWoodDiffuseSpecularMapSRV) ||
-        !LoadTexture("CargoA.dds",               &gCrateDiffuseSpecularMap,     &gCrateDiffuseSpecularMapSRV    ) ||
-        !LoadTexture("GrassDiffuseSpecular.dds", &gGroundDiffuseSpecularMap,    &gGroundDiffuseSpecularMapSRV   ) ||
-        !LoadTexture("Flare.jpg",                &gLightDiffuseMap,             &gLightDiffuseMapSRV))
+    // #############################
+    //  load textures
+    // #############################
+
+    try 
     {
-        gLastError = "Error loading textures";
+        characterTexture = new Texture("StoneDiffuseSpecular.dds");
+        patternTexture = new Texture("PatternDiffuseSpecular.dds");
+        paternNormalMap = new Texture("PatternNormal.dds");
+        cobbleTexture = new Texture("CobbleDiffuseSpecular.dds");
+        cobbleNormalMap = new Texture("CobbleNormalHeight.dds");
+        woodTexture = new Texture("WoodDiffuseSpecular.dds");
+        crateTexture = new Texture("CargoA.dds");
+        grassTexture = new Texture("GrassDiffuseSpecular.dds");
+        lightTexture = new Texture("Flare.jpg");
+
+        textures.push_back(characterTexture);
+        textures.push_back(paternNormalMap);
+        textures.push_back(cobbleTexture);
+        textures.push_back(cobbleNormalMap);
+        textures.push_back(woodTexture);
+        textures.push_back(crateTexture);
+        textures.push_back(grassTexture);
+        textures.push_back(lightTexture);
+        textures.push_back(patternTexture);
+    }
+    catch (std::runtime_error e)  // Constructors cannot return error messages so use exceptions to catch mesh errors (fairly standard approach this)
+    {
+        gLastError = e.what(); // This picks up the error message put in the exception (see Mesh.cpp)
         return false;
     }
 
@@ -271,30 +310,23 @@ void ReleaseResources()
 {
     ReleaseStates();
 
-    if (gLightDiffuseMapSRV)             gLightDiffuseMapSRV->Release();
-    if (gLightDiffuseMap)                gLightDiffuseMap->Release();
-    if (gGroundDiffuseSpecularMapSRV)    gGroundDiffuseSpecularMapSRV->Release();
-    if (gGroundDiffuseSpecularMap)       gGroundDiffuseSpecularMap->Release();
-    if (gCrateDiffuseSpecularMapSRV)     gCrateDiffuseSpecularMapSRV->Release();
-    if (gCrateDiffuseSpecularMap)        gCrateDiffuseSpecularMap->Release();
-    if (gCharacterDiffuseSpecularMapSRV) gCharacterDiffuseSpecularMapSRV->Release();
-    if (gCharacterDiffuseSpecularMap)    gCharacterDiffuseSpecularMap->Release();
-    if (gPatternDiffuseSpecularMapSRV) gPatternDiffuseSpecularMapSRV->Release();
-    if (gPatternDiffuseSpecularMap) gPatternDiffuseSpecularMap->Release();
-    if (gPatternNormalMapSRV) gPatternNormalMapSRV->Release();
-    if (gPatternNormalMap) gPatternNormalMap->Release();
-    if (gCobbleDiffuseSpecularMap) gCobbleDiffuseSpecularMap->Release();
-    if (gCobbleDiffuseSpecularMapSRV) gCobbleDiffuseSpecularMapSRV->Release();
-    if (gCobbleNormalHeightMap) gCobbleNormalHeightMap->Release();
-    if (gCobbleNormalHeightMapSRV) gCobbleNormalHeightMapSRV->Release();
-
-    if (gWoodDiffuseSpecularMap) gWoodDiffuseSpecularMap->Release();
-    if (gWoodDiffuseSpecularMapSRV) gWoodDiffuseSpecularMapSRV->Release();
+    for (int i = 0; i < textures.size(); i++)
+    {
+        textures[i]->gTextureMap->Release();
+        textures[i]->gTextureMapSRV->Release();
+    }
+    textures.clear();
 
     if (gPerModelConstantBuffer)  gPerModelConstantBuffer->Release();
     if (gPerFrameConstantBuffer)  gPerFrameConstantBuffer->Release();
 
-    ReleaseShaders();
+    //ReleaseShaders();
+    for (int i = 0; i < shaders.size(); i++)
+    {
+        shaders[i]->pixelShader->Release();
+        shaders[i]->vertexShader->Release();
+    }
+    shaders.clear();
 
     // See note in InitGeometry about why we're not using unique_ptr and having to manually delete
     for (int i = 0; i < NUM_LIGHTS; ++i)
@@ -338,8 +370,8 @@ void RenderSceneFromCamera(Camera* camera)
     //// Render lit models ////
 
     // Select which shaders to use next
-    gD3DContext->VSSetShader(gPixelLightingVertexShader, nullptr, 0);
-    gD3DContext->PSSetShader(gPixelLightingPixelShader,  nullptr, 0);
+    gD3DContext->VSSetShader(defaultShader->vertexShader, nullptr, 0);
+    gD3DContext->PSSetShader(defaultShader->pixelShader,  nullptr, 0);
     
     // States - no blending, normal depth buffer and culling
     gD3DContext->OMSetBlendState(gNoBlendingState, nullptr, 0xffffff);
@@ -347,19 +379,19 @@ void RenderSceneFromCamera(Camera* camera)
     gD3DContext->RSSetState(gCullBackState);
 
     // Select the approriate textures and sampler to use in the pixel shader
-    gD3DContext->PSSetShaderResources(0, 1, &gGroundDiffuseSpecularMapSRV); // First parameter must match texture slot number in the shader
+    gD3DContext->PSSetShaderResources(0, 1, &grassTexture->gTextureMapSRV); // First parameter must match texture slot number in the shader
     gD3DContext->PSSetSamplers(0, 1, &gAnisotropic4xSampler);
 
 
-    gD3DContext->PSSetShaderResources(0, 1, &gWoodDiffuseSpecularMapSRV);// pass second texture to shader
+    gD3DContext->PSSetShaderResources(0, 1, &woodTexture->gTextureMapSRV);// pass second texture to shader
     gTest->Render();
 
 
     // Render other lit models, only change textures for each onee
-    gD3DContext->PSSetShaderResources(0, 1, &gCharacterDiffuseSpecularMapSRV); 
+    gD3DContext->PSSetShaderResources(0, 1, &characterTexture->gTextureMapSRV); 
     gTeapot->Render();
 
-    gD3DContext->PSSetShaderResources(0, 1, &gCrateDiffuseSpecularMapSRV);
+    gD3DContext->PSSetShaderResources(0, 1, &crateTexture->gTextureMapSRV);
     gCrate->Render();
 
 
@@ -367,32 +399,32 @@ void RenderSceneFromCamera(Camera* camera)
 
 
     //sphere
-    gD3DContext->VSSetShader(gWiggleVertexShader, nullptr, 0);
-    gD3DContext->PSSetShader(gWigglePixelShader, nullptr, 0);
-    gD3DContext->PSSetShaderResources(0, 1, &gCharacterDiffuseSpecularMapSRV);
+    gD3DContext->VSSetShader(wiggleShader->vertexShader, nullptr, 0);
+    gD3DContext->PSSetShader(wiggleShader->pixelShader, nullptr, 0);
+    gD3DContext->PSSetShaderResources(0, 1, &characterTexture->gTextureMapSRV);
     gSphere->Render();
 
     //cube
-    gD3DContext->VSSetShader(gFadingVertexShader, nullptr, 0);
-    gD3DContext->PSSetShader(gFadingPixelShader, nullptr, 0);
-    gD3DContext->PSSetShaderResources(0, 1, &gCharacterDiffuseSpecularMapSRV);// pass first texture to shader
-    gD3DContext->PSSetShaderResources(1, 1, &gWoodDiffuseSpecularMapSRV);// pass second texture to shader
+    gD3DContext->VSSetShader(fadingShader->vertexShader, nullptr, 0);
+    gD3DContext->PSSetShader(fadingShader->pixelShader, nullptr, 0);
+    gD3DContext->PSSetShaderResources(0, 1, &characterTexture->gTextureMapSRV);// pass first texture to shader
+    gD3DContext->PSSetShaderResources(1, 1, &woodTexture->gTextureMapSRV);// pass second texture to shader
     gCube->Render();
 
     //bumped cube
-    gD3DContext->VSSetShader(gNormalMappingVertexShader, nullptr, 0);
-    gD3DContext->PSSetShader(gNormalMappingPixelShader, nullptr, 0);
-    gD3DContext->PSSetShaderResources(0, 1, &gPatternDiffuseSpecularMapSRV);// pass first texture to shader
-    gD3DContext->PSSetShaderResources(1, 1, &gPatternNormalMapSRV);// pass second texture to shader
+    gD3DContext->VSSetShader(normalMappingShader->vertexShader, nullptr, 0);
+    gD3DContext->PSSetShader(normalMappingShader->pixelShader, nullptr, 0);
+    gD3DContext->PSSetShaderResources(0, 1, &patternTexture->gTextureMapSRV);// pass first texture to shader
+    gD3DContext->PSSetShaderResources(1, 1, &paternNormalMap->gTextureMapSRV);// pass second texture to shader
     gD3DContext->PSSetSamplers(0, 1, &gAnisotropic4xSampler);
     gBumpedCube->Render();
 
 
     // paralax mapped ground
-    gD3DContext->VSSetShader(gParallaxMappingVertexShader, nullptr, 0);
-    gD3DContext->PSSetShader(gParallaxMappingPixelShader, nullptr, 0);
-    gD3DContext->PSSetShaderResources(0, 1, &gCobbleDiffuseSpecularMapSRV);// pass first texture to shader
-    gD3DContext->PSSetShaderResources(1, 1, &gCobbleNormalHeightMapSRV);// pass second texture to shader
+    gD3DContext->VSSetShader(parallaxMappingShader->vertexShader, nullptr, 0);
+    gD3DContext->PSSetShader(parallaxMappingShader->pixelShader, nullptr, 0);
+    gD3DContext->PSSetShaderResources(0, 1, &cobbleTexture->gTextureMapSRV);// pass first texture to shader
+    gD3DContext->PSSetShaderResources(1, 1, &cobbleNormalMap->gTextureMapSRV);// pass second texture to shader
     gGround->Render();
 
 
@@ -401,11 +433,11 @@ void RenderSceneFromCamera(Camera* camera)
     //// Render lights ////
 
     // Select which shaders to use next
-    gD3DContext->VSSetShader(gBasicTransformVertexShader, nullptr, 0);
-    gD3DContext->PSSetShader(gLightModelPixelShader,      nullptr, 0);
+    gD3DContext->VSSetShader(BasicTransformShader->vertexShader, nullptr, 0);
+    gD3DContext->PSSetShader(LightModelShader->pixelShader,      nullptr, 0);
 
     // Select the texture and sampler to use in the pixel shader
-    gD3DContext->PSSetShaderResources(0, 1, &gLightDiffuseMapSRV); // First parameter must match texture slot number in the shaer
+    gD3DContext->PSSetShaderResources(0, 1, &lightTexture->gTextureMapSRV); // First parameter must match texture slot number in the shaer
     gD3DContext->PSSetSamplers(0, 1, &gAnisotropic4xSampler);
 
     // States - additive blending, read-only depth buffer and no culling (standard set-up for blending
