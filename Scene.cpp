@@ -45,6 +45,7 @@ Mesh* gBumpedCubeMesh;
 Mesh* gCrateMesh;
 Mesh* gGroundMesh;
 Mesh* gLightMesh;
+Mesh* gTrollMesh;
 
 Model* gTeapot;
 Model* gSphere;
@@ -53,6 +54,7 @@ Model* gTest;
 Model* gBumpedCube;
 Model* gCrate;
 Model* gGround;
+Model* gTroll;
 
 Camera* gCamera;
 
@@ -106,6 +108,8 @@ Texture* paternNormalMap = nullptr;
 Texture* cobbleTexture = nullptr;
 Texture* cobbleNormalMap = nullptr;
 Texture* alphaTexture = nullptr;
+Texture* trolltexture = nullptr;
+Texture* cellMap = nullptr;
 
 
 
@@ -119,6 +123,8 @@ Shader* fadingShader            = nullptr;
 Shader* normalMappingShader     = nullptr;
 Shader* parallaxMappingShader   = nullptr;
 Shader* defaultShader           = nullptr;
+Shader* cellShading             = nullptr;
+Shader* cellShadingOutline      = nullptr;
 
 Shader* AlphaBlendingShader     = nullptr;
 Shader* BasicTransformShader    = nullptr;
@@ -127,6 +133,11 @@ Shader* LightModelShader        = nullptr;
 
 float gParallaxDepth = 0.08f; // Overall depth of bumpiness for parallax mapping
 bool gUseParallax = true;  // Toggle for parallax 
+
+
+// Cell shading data
+CVector3 OutlineColour = { 0, 0, 0 };
+float    OutlineThickness = 0.015f;
 
 //--------------------------------------------------------------------------------------
 // Initialise scene geometry, constant buffers and states
@@ -143,6 +154,7 @@ bool InitGeometry()
         gTeapotMesh = new Mesh("teapot.x");
         gSphereMesh = new Mesh("Sphere.x");
         gCubeMesh = new Mesh("Cube.x");
+        gTrollMesh = new Mesh("Troll.x");
         gBumpedCubeMesh = new Mesh("Cube.x", true);     // <-----   use true to make this mesh generate tangents
                                                         //          this means that the model will use TangentVertex in common.hlsli instead of
                                                         //          BasicVertex. (meaning that normal maps can now be used on the any model using this mesh)
@@ -168,6 +180,8 @@ bool InitGeometry()
         normalMappingShader = new Shader("NormalMapping");
         parallaxMappingShader = new Shader("ParallaxMapping");
         defaultShader = new Shader("PixelLighting");
+        cellShading = new Shader("CellShading");
+        cellShadingOutline = new Shader("CellShadingOutline");
 
         AlphaBlendingShader = new Shader("AlphaBlending", true, false);
         BasicTransformShader = new Shader("BasicTransform", false, true);
@@ -178,6 +192,7 @@ bool InitGeometry()
         shaders.push_back(normalMappingShader);
         shaders.push_back(parallaxMappingShader);
         shaders.push_back(defaultShader);
+        shaders.push_back(cellShading);
         shaders.push_back(AlphaBlendingShader);
         shaders.push_back(BasicTransformShader);
         shaders.push_back(LightModelShader);
@@ -219,6 +234,9 @@ bool InitGeometry()
         grassTexture = new Texture("GrassDiffuseSpecular.dds");
         lightTexture = new Texture("Flare.jpg");
         alphaTexture = new Texture("Glass.png");
+        //trolltexture = new Texture("TrollDiffuseSpecular.dds");
+        trolltexture = new Texture("Green.png");
+        cellMap = new Texture("CellGradient.png");
 
         textures.push_back(characterTexture);
         textures.push_back(paternNormalMap);
@@ -261,6 +279,7 @@ bool InitScene()
     gCrate    = new Model(gCrateMesh);
     gGround   = new Model(gGroundMesh);
     gTest = new Model(gCubeMesh);
+    gTroll = new Model(gTrollMesh);
 
 
 	// Initial positions
@@ -274,6 +293,8 @@ bool InitScene()
 	gCrate-> SetPosition({ 45, 0, 45 });
 	gCrate-> SetScale(6);
 	gCrate-> SetRotation({ 0.0f, ToRadians(-50.0f), 0.0f });
+    gTroll->SetPosition({ 30, 30, 10 });
+    gTroll->SetScale(5);
 
 
     // Light set-up - using an array this time
@@ -435,6 +456,37 @@ void RenderSceneFromCamera(Camera* camera)
     gD3DContext->OMSetBlendState(gAlphaBlendingState, nullptr, 0xffffff);
     gTest->Render();
 
+    //troll cell shading
+        // Outline drawing - slightly scales object and draws black
+    gD3DContext->VSSetShader(cellShadingOutline->vertexShader, nullptr, 0);
+    gD3DContext->PSSetShader(cellShadingOutline->pixelShader, nullptr, 0);
+        // States - no blending, normal depth buffer. However, use front culling to draw *inside* of model
+    gD3DContext->OMSetBlendState(gNoBlendingState, nullptr, 0xffffff);
+    gD3DContext->OMSetDepthStencilState(gUseDepthBufferState, 0);
+    gD3DContext->RSSetState(gCullFrontState);
+
+    // No textures needed, draws outline in plain colour
+
+    // Render models, no GPU changes needed between rendering them in this case
+    gTroll->Render();
+    gD3DContext->VSSetShader(cellShading->vertexShader, nullptr, 0);
+    gD3DContext->PSSetShader(cellShading->pixelShader, nullptr, 0);
+
+    // Switch back to the usual back face culling (not inside out)
+    gD3DContext->RSSetState(gCullBackState);
+
+    // Select the troll texture and sampler
+    gD3DContext->PSSetShaderResources(0, 1, &trolltexture->gTextureMapSRV); // First parameter must match texture slot number in the shaer
+    gD3DContext->PSSetSamplers(0, 1, &gAnisotropic4xSampler);
+
+    // Also, cell shading uses a special 1D "cell map", which uses point sampling
+    gD3DContext->PSSetShaderResources(1, 1, &cellMap->gTextureMapSRV); // First parameter must match texture slot number in the shaer
+    gD3DContext->PSSetSamplers(1, 1, &gPointSampler);
+
+    // Render troll model
+    gTroll->Render();
+
+
     //// Render lights ////
 
     // Select which shaders to use next
@@ -494,6 +546,8 @@ void RenderScene()
     gPerFrameConstants.cameraPosition = gCamera->Position();
     gPerFrameConstants.parallaxDepth = (gUseParallax ? gParallaxDepth : 0);
     gPerFrameConstants.timer = wiggleTimer;
+    gPerFrameConstants.outlineColour = OutlineColour;
+    gPerFrameConstants.outlineThickness = OutlineThickness;
     gPerFrameConstants.numLights = numOfPointLights;
     gPerFrameConstants.numSpotLights = numOfSpotLights;
 
@@ -587,7 +641,7 @@ void UpdateScene(float frameTime)
     gLights[1]->strength -= 0.2f * strengthMultiplier; // 40%
     if (gLights[1]->strength <= 0)                    // make one light pulsate on and off
         strengthMultiplier = -1;                      //
-    else if (gLights[1]->strength >= 200)             //
+    else if (gLights[1]->strength >= 100)             //
         strengthMultiplier = 1;                       //
 
 

@@ -77,8 +77,14 @@ struct PerFrameConstants
     CVector3   cameraPosition;
     float      parallaxDepth;  // Depth of the parallax mapping effect
 
+    CVector3   outlineColour;    // Cell shading outline colour
+    float      outlineThickness; // Controls thickness of outlines for cell shading
+
+
     int numLights;
     int numSpotLights;
+
+
 };
 
 

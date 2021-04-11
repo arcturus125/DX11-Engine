@@ -115,6 +115,9 @@ cbuffer PerFrameConstants : register(b0) // The b0 gives this constant buffer th
     float3 gCameraPosition;
     float  gParallaxDepth;
     
+    float3 gOutlineColour; // Cell shading outline colour
+    float gOutlineThickness; // Controls thickness of outlines for cell shading
+    
     int gNumLights;
     int gNumSpotLights;
 }
