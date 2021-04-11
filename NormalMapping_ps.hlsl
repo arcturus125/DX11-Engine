@@ -45,6 +45,9 @@ SamplerState TexSampler : register(s0); // A sampler is a filter for a texture l
 //********************************************************************************************
 float4 main(NormalMappingPixelShaderInput input) : SV_Target
 {
+    
+    
+    input.uv += gtimer/5;
 	//************************
 	// Normal Map Extraction
 	//************************
@@ -59,7 +62,7 @@ float4 main(NormalMappingPixelShaderInput input) : SV_Target
 	// are stored as columns rather than in rows as in the C++. This means that this matrix is created "transposed" from what we would
 	// expect. However, for a 3x3 rotation matrix the transpose is equal to the inverse, which is just what we require)
     float3 modelBiTangent = cross(modelNormal, modelTangent);
-    float3x3 invTangentMatrix = float3x3(modelTangent, modelBiTangent * 20, modelNormal);
+    float3x3 invTangentMatrix = float3x3(modelTangent, modelBiTangent * 3, modelNormal);
 	
 	// Get the texture normal from the normal map. The r,g,b pixel values actually store x,y,z components of a normal. However, r,g,b
 	// values are stored in the range 0->1, whereas the x, y & z components should be in the range -1->1. So some scaling is needed

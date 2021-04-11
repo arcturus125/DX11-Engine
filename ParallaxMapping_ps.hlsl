@@ -47,11 +47,13 @@ float4 main(NormalMappingPixelShaderInput input) : SV_Target
 	//************************
 	// Normal Map Extraction
 	//************************
-
+	
 	// Will use the model normal/tangent to calculate matrix for tangent space. The normals for each pixel are *interpolated* from the
 	// vertex normals/tangents. This means they will not be length 1, so they need to be renormalised (same as per-pixel lighting issue)
 	float3 modelNormal  = normalize(input.modelNormal);
 	float3 modelTangent = normalize(input.modelTangent);
+	
+	
 
 	// Calculate bi-tangent to complete the three axes of tangent space - then create the *inverse* tangent matrix to convert *from*
 	// tangent space into model space. This is just a matrix built from the three axes (very advanced note - by default shader matrices

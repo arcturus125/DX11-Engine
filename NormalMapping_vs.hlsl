@@ -15,6 +15,7 @@
 //*******************************************************************************************************//
 NormalMappingPixelShaderInput main(TangentVertex modelVertex)
 {
+    
     NormalMappingPixelShaderInput output; // This is the data the pixel shader requires from this vertex shader
 
     // Input position is x,y,z only - need a 4th element to multiply by a 4x4 matrix. Use 1 for a point (0 for a vector) - recall lectures

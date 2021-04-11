@@ -26,8 +26,15 @@ SamplerState TexSampler      : register(s0); // A sampler is a filter for a text
 // This shader just samples a diffuse texture map
 float4 main(LightingPixelShaderInput input) : SV_Target
 {
+	
+	//// Sample diffuse material colour for this pixel from a texture using a given sampler that you set up in the C++ code
+ //   // IMPORTANT: in this lab we get a float4 from the texture: R, G, B & A since we will be using alpha blending and cutout sprites
+ //   //            that contain data in the alpha channel. For non-alpha textures we usually just get a float3 RGB and just use 1 for alpha
+ //   float4 diffuseMapColour = DiffuseSpecularMap.Sample(TexSampler, input.uv);
+
+ //   return diffuseMapColour;
     // Normal might have been scaled by model scaling or interpolation so renormalise
-    input.worldNormal = normalize(input.worldNormal); 
+    input.worldNormal = normalize(input.worldNormal);
 
 	///////////////////////
 	// Calculate lighting
@@ -79,8 +86,8 @@ float4 main(LightingPixelShaderInput input) : SV_Target
     }
     
 	// Sum the effect of the lights - add the ambient at this stage rather than for each light (or we will get too much ambient)
-	float3 diffuseLight = gAmbientColour + sumOfDiffuse;
-	float3 specularLight = sumOfSpecular;
+    float3 diffuseLight = gAmbientColour + sumOfDiffuse;
+    float3 specularLight = sumOfSpecular;
 
 
     float4 textureColour = DiffuseSpecularMap.Sample(TexSampler, input.uv);
@@ -90,28 +97,5 @@ float4 main(LightingPixelShaderInput input) : SV_Target
     // Combine lighting with texture colours
     float3 finalColour = diffuseLight * diffuseMaterialColour + specularLight;
 
-    return float4(finalColour, textureColour.a); // Always use 1.0f for output alpha - no alpha blending in this lab
-}
-
-//      #################################
-//          old lighting equations, hardcoded for each light
-//      #################################
-
-////// Light 1 ////
-	//// Direction and distance from pixel to light
- //   float3 light1Direction = normalize(gLight1Position - input.worldPosition);
- //   float3 light1Dist = length(gLight1Position - input.worldPosition);
-    
- //   // Equations from lighting lecture
- //   float3 diffuseLight1 = gLight1Colour * max(dot(input.worldNormal, light1Direction), 0) / (light1Dist * 3); // multiploying by 3 increases the attenuation - makes the lighting smoother
- //   float3 halfway = normalize(light1Direction + cameraDirection);
- //   float3 specularLight1 =  diffuseLight1 * pow(max(dot(input.worldNormal, halfway), 0), gSpecularPower); // Multiplying by diffuseLight instead of light colour - my own personal preference
-
-
-	////// Light 2 ////
-
-	//float3 light2Direction = normalize(gLight2Position - input.worldPosition);
- //   float3 light2Dist = length(gLight2Position - input.worldPosition);
- //   float3 diffuseLight2 = gLight2Colour * max(dot(input.worldNormal, light2Direction), 0) / (light2Dist * 3); // multiploying by 3 increases the attenuation - makes the lighting smoother
- //   halfway = normalize(light2Direction + cameraDirection);
- //   float3 specularLight2 =  diffuseLight2 * pow(max(dot(input.worldNormal, halfway), 0), gSpecularPower);
+    return float4(finalColour, textureColour.a);
+};

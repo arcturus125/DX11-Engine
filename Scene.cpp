@@ -105,6 +105,7 @@ Texture* patternTexture = nullptr;
 Texture* paternNormalMap = nullptr;
 Texture* cobbleTexture = nullptr;
 Texture* cobbleNormalMap = nullptr;
+Texture* alphaTexture = nullptr;
 
 
 
@@ -217,6 +218,7 @@ bool InitGeometry()
         crateTexture = new Texture("CargoA.dds");
         grassTexture = new Texture("GrassDiffuseSpecular.dds");
         lightTexture = new Texture("Flare.jpg");
+        alphaTexture = new Texture("Glass.png");
 
         textures.push_back(characterTexture);
         textures.push_back(paternNormalMap);
@@ -383,8 +385,7 @@ void RenderSceneFromCamera(Camera* camera)
     gD3DContext->PSSetSamplers(0, 1, &gAnisotropic4xSampler);
 
 
-    gD3DContext->PSSetShaderResources(0, 1, &woodTexture->gTextureMapSRV);// pass second texture to shader
-    gTest->Render();
+    
 
 
     // Render other lit models, only change textures for each onee
@@ -428,7 +429,11 @@ void RenderSceneFromCamera(Camera* camera)
     gGround->Render();
 
 
-
+    gD3DContext->VSSetShader(AlphaBlendingShader->vertexShader, nullptr, 0);
+    gD3DContext->PSSetShader(AlphaBlendingShader->pixelShader, nullptr, 0);
+    gD3DContext->PSSetShaderResources(0, 1, &alphaTexture->gTextureMapSRV);// pass second texture to shader
+    gD3DContext->OMSetBlendState(gAlphaBlendingState, nullptr, 0xffffff);
+    gTest->Render();
 
     //// Render lights ////
 
