@@ -23,21 +23,23 @@
 #include <sstream>
 #include <memory>
 #include "Texture.h"
-//#include "Light.h"
 
 
-//--------------------------------------------------------------------------------------
-// Scene Data
-//--------------------------------------------------------------------------------------
-// Addition of Mesh, Model and Camera classes have greatly simplified this section
-// Geometry data has gone to Mesh class. Positions, rotations, matrices have gone to Model and Camera classes
+
+// Lock FPS to monitor refresh rate, which will typically set it to 60fps. Press 'p' to toggle to full fps
+bool lockFPS = true;
 
 // Constants controlling speed of movement/rotation (measured in units per second because we're using frame time)
 const float ROTATION_SPEED = 2.0f;  // 2 radians per second for rotation
 const float MOVEMENT_SPEED = 50.0f; // 50 units per second for movement (what a unit of length is depends on 3D model - i.e. an artist decision usually)
 
 
-// Meshes, models and cameras, same meaning as TL-Engine. Meshes prepared in InitGeometry function, Models & camera in InitScene
+float wiggleTimer = 0;
+
+//--------------------------------------------------------------------------------------
+// Scene Data
+//--------------------------------------------------------------------------------------
+
 Mesh* gTeapotMesh;
 Mesh* gSphereMesh;
 Mesh* gCubeMesh;
@@ -59,11 +61,13 @@ Model* gTroll;
 Camera* gCamera;
 
 
-const int NUM_LIGHTS = 3;
-Light* gLights[NUM_LIGHTS]; 
+//--------------------------------------------------------------------------------------
+// Lighting Data
+//--------------------------------------------------------------------------------------
+std::vector <Light*> gLights;
 
 
-// Additional light information
+// lighting settings
 CVector3 gAmbientColour = { 0.2f, 0.2f, 0.3f }; // Background level of light (slightly bluish to match the far background, which is dark blue)
 float    gSpecularPower = 256; // Specular power controls shininess - same for all models in this app
 
@@ -73,8 +77,8 @@ ColourRGBA gBackgroundColor = { 0.2f, 0.2f, 0.3f, 1.0f };
 const float gLightOrbit = 20.0f;
 const float gLightOrbitSpeed = 0.7f;
 
-// Lock FPS to monitor refresh rate, which will typically set it to 60fps. Press 'p' to toggle to full fps
-bool lockFPS = true;
+int strengthMultiplier = 1;
+int colourMultiplier = 1;
 
 
 //--------------------------------------------------------------------------------------
@@ -94,18 +98,18 @@ ID3D11Buffer*     gPerModelConstantBuffer; // --"--
 //--------------------------------------------------------------------------------------
 std::vector <Texture*> textures;
 
-Texture* characterTexture = nullptr;
-Texture* woodTexture = nullptr;
-Texture* crateTexture = nullptr;
-Texture* grassTexture = nullptr;
-Texture* lightTexture = nullptr;
-Texture* patternTexture = nullptr;
-Texture* paternNormalMap = nullptr;
-Texture* cobbleTexture = nullptr;
-Texture* cobbleNormalMap = nullptr;
-Texture* alphaTexture = nullptr;
-Texture* trolltexture = nullptr;
-Texture* cellMap = nullptr;
+Texture* characterTexture   = nullptr;
+Texture* woodTexture        = nullptr;
+Texture* crateTexture       = nullptr;
+Texture* grassTexture       = nullptr;
+Texture* lightTexture       = nullptr;
+Texture* patternTexture     = nullptr;
+Texture* paternNormalMap    = nullptr;
+Texture* cobbleTexture      = nullptr;
+Texture* cobbleNormalMap    = nullptr;
+Texture* alphaTexture       = nullptr;
+Texture* trolltexture       = nullptr;
+Texture* cellMap            = nullptr;
 
 
 
@@ -148,16 +152,15 @@ bool InitGeometry()
     // #############################
     try 
     {
-        gTeapotMesh = new Mesh("teapot.x");
-        gSphereMesh = new Mesh("Sphere.x");
-        gCubeMesh = new Mesh("Cube.x");
-        gTrollMesh = new Mesh("Troll.x");
+        gTeapotMesh     = new Mesh("teapot.x");
+        gSphereMesh     = new Mesh("Sphere.x");
+        gCubeMesh       = new Mesh("Cube.x");
+        gTrollMesh      = new Mesh("Troll.x");
         gBumpedCubeMesh = new Mesh("Cube.x", true);     // <-----   use true to make this mesh generate tangents
                                                         //          this means that the model will use TangentVertex in common.hlsli instead of
                                                         //          BasicVertex. (meaning that normal maps can now be used on the any model using this mesh)
-        gCrateMesh    = new Mesh("CargoContainer.x");
-        gGroundMesh   = new Mesh("Hills.x", true);
-        gLightMesh    = new Mesh("Light.x");
+        gCrateMesh      = new Mesh("CargoContainer.x");
+        gGroundMesh     = new Mesh("Hills.x", true);
     }
     // if there is an error loading any of these meshes, display error message to user
     catch (std::runtime_error e)
@@ -172,18 +175,19 @@ bool InitGeometry()
 
     try
     {
-        wiggleShader = new Shader("Wiggle");
-        fadingShader = new Shader("Fading");
-        normalMappingShader = new Shader("NormalMapping");
-        parallaxMappingShader = new Shader("ParallaxMapping");
-        defaultShader = new Shader("PixelLighting");
-        cellShading = new Shader("CellShading");
-        cellShadingOutline = new Shader("CellShadingOutline");
+        wiggleShader            = new Shader("Wiggle");
+        fadingShader            = new Shader("Fading");
+        normalMappingShader     = new Shader("NormalMapping");
+        parallaxMappingShader   = new Shader("ParallaxMapping");
+        defaultShader           = new Shader("PixelLighting");
+        cellShading             = new Shader("CellShading");
+        cellShadingOutline      = new Shader("CellShadingOutline");
 
-        AlphaBlendingShader = new Shader("AlphaBlending", true, false);
-        BasicTransformShader = new Shader("BasicTransform", false, true);
-        LightModelShader = new Shader("LightModel", true, false);
+        AlphaBlendingShader     = new Shader("AlphaBlending", true, false);
+        BasicTransformShader    = new Shader("BasicTransform", false, true);
+        LightModelShader        = new Shader("LightModel", true, false);
 
+        // add each shader to the list of shaders
         shaders.push_back(wiggleShader);
         shaders.push_back(fadingShader);
         shaders.push_back(normalMappingShader);
@@ -195,9 +199,10 @@ bool InitGeometry()
         shaders.push_back(LightModelShader);
 
     }
-    catch (std::runtime_error e)  // Constructors cannot return error messages so use exceptions to catch mesh errors (fairly standard approach this)
+    // if there is an error loading any of these Shaders, display error message to user
+    catch (std::runtime_error e)  
     {
-        gLastError = e.what(); // This picks up the error message put in the exception (see Mesh.cpp)
+        gLastError = e.what();
         return false;
     }
 
@@ -221,20 +226,20 @@ bool InitGeometry()
 
     try 
     {
-        characterTexture = new Texture("StoneDiffuseSpecular.dds");
-        patternTexture = new Texture("PatternDiffuseSpecular.dds");
-        paternNormalMap = new Texture("PatternNormal.dds");
-        cobbleTexture = new Texture("CobbleDiffuseSpecular.dds");
-        cobbleNormalMap = new Texture("CobbleNormalHeight.dds");
-        woodTexture = new Texture("WoodDiffuseSpecular.dds");
-        crateTexture = new Texture("CargoA.dds");
-        grassTexture = new Texture("GrassDiffuseSpecular.dds");
-        lightTexture = new Texture("Flare.jpg");
-        alphaTexture = new Texture("Glass.png");
-        //trolltexture = new Texture("TrollDiffuseSpecular.dds");
-        trolltexture = new Texture("Green.png");
-        cellMap = new Texture("CellGradient.png");
+        characterTexture    = new Texture("StoneDiffuseSpecular.dds");
+        patternTexture      = new Texture("PatternDiffuseSpecular.dds");
+        paternNormalMap     = new Texture("PatternNormal.dds");
+        cobbleTexture       = new Texture("CobbleDiffuseSpecular.dds");
+        cobbleNormalMap     = new Texture("CobbleNormalHeight.dds");
+        woodTexture         = new Texture("WoodDiffuseSpecular.dds");
+        crateTexture        = new Texture("CargoA.dds");
+        grassTexture        = new Texture("GrassDiffuseSpecular.dds");
+        lightTexture        = new Texture("Flare.jpg");
+        alphaTexture        = new Texture("Glass.png");
+        trolltexture        = new Texture("Green.png");
+        cellMap             = new Texture("CellGradient.png");
 
+        // add the textures to the list of textures
         textures.push_back(characterTexture);
         textures.push_back(paternNormalMap);
         textures.push_back(cobbleTexture);
@@ -273,14 +278,14 @@ bool InitScene()
     //  create models
     // #############################
 
-    gTeapot   = new Model(gTeapotMesh);
+    gTeapot     = new Model(gTeapotMesh);
     gSphere     = new Model(gSphereMesh);
-    gCube = new Model(gCubeMesh);
+    gCube       = new Model(gCubeMesh);
     gBumpedCube = new Model(gBumpedCubeMesh);
-    gCrate    = new Model(gCrateMesh);
-    gGround   = new Model(gGroundMesh);
-    gTest = new Model(gCubeMesh);
-    gTroll = new Model(gTrollMesh);
+    gCrate      = new Model(gCrateMesh);
+    gGround     = new Model(gGroundMesh);
+    gTest       = new Model(gCubeMesh);
+    gTroll      = new Model(gTrollMesh);
 
 
 	// Position models
@@ -300,31 +305,18 @@ bool InitScene()
     // #############################
     //  create Lights
     // #############################
-    for (int i = 0; i < NUM_LIGHTS; ++i)
-    {
-        gLights[i] = new Light();
-        gLights[i]->model = new Model(gLightMesh);
-    }
-
-    gLights[0]->type = Light::LightType::Spot;
-    gLights[0]->colour = { 0.8f, 0.8f, 1.0f };
-    gLights[0]->strength = 10;
-    gLights[0]->model->SetPosition({ 30, 20, 0 });
-    gLights[0]->model->SetScale(pow(gLights[0]->strength, 0.7f)); // stronger light = bigger model
 
 
-    gLights[1]->type = Light::LightType::Point;
-    gLights[1]->colour = { 1.0f, 0.8f, 0.2f };
-    gLights[1]->strength = 40;
+    // create each light
+    gLights.push_back(new Light( Light::LightType::Spot,        { 0.8f, 0.8f, 1.0f }, 10));
+    gLights.push_back(new Light( Light::LightType::Point,       { 1.0f, 0.8f, 0.2f }, 40));
+    gLights.push_back(new Light( Light::LightType::Directional, { 1.0f, 0.1f, 1.0f }, 0.4f)); // directional lights are very bright, so their strength property is a LOT lower compared to other lights
+
+    // position and rotate each light
+    gLights[0]->model->SetPosition({  30, 20,  0 });
     gLights[1]->model->SetPosition({ -20, 50, 20 });
-    gLights[1]->model->SetScale(pow(gLights[1]->strength, 0.7f));
-
-    gLights[2]->type = Light::LightType::Directional;
-    gLights[2]->colour = { 1.0f, 0.1f, 1.0f };
-    gLights[2]->strength = 0.4f;
-    gLights[2]->model->SetPosition({ 60,40,20 });
+    gLights[2]->model->SetPosition({  60, 40, 20 });
     gLights[2]->model->SetRotation({ ToRadians(50.0f), ToRadians(-50.0f), 0.0f });
-    gLights[2]->model->SetScale(pow(gLights[0]->strength, 0.7f));
 
 
     // #############################
@@ -344,6 +336,7 @@ void ReleaseResources()
 {
     ReleaseStates();
 
+    // loop through textures and release their contents, then clear the list
     for (int i = 0; i < textures.size(); i++)
     {
         textures[i]->gTextureMap->Release();
@@ -353,8 +346,7 @@ void ReleaseResources()
 
     if (gPerModelConstantBuffer)  gPerModelConstantBuffer->Release();
     if (gPerFrameConstantBuffer)  gPerFrameConstantBuffer->Release();
-
-    //ReleaseShaders();
+    // loop through the shader and release their contents, then clear the list
     for (int i = 0; i < shaders.size(); i++)
     {
         shaders[i]->pixelShader->Release();
@@ -362,23 +354,27 @@ void ReleaseResources()
     }
     shaders.clear();
 
-    // See note in InitGeometry about why we're not using unique_ptr and having to manually delete
-    for (int i = 0; i < NUM_LIGHTS; ++i)
+    // loop through lights and delete their contents
+    for (int i = 0; i < gLights.size(); ++i)
     {
         delete gLights[i]->model;  gLights[i]->model = nullptr;
         delete gLights[i];
     }
-    delete gCamera;    gCamera    = nullptr;
+    
+    // delete models
     delete gGround;    gGround    = nullptr;
     delete gCrate;     gCrate     = nullptr;
     delete gTeapot;  gTeapot = nullptr;
     delete gSphere; gSphere = nullptr;
     delete gCube; gCube = nullptr;
 
+    // delete meshes
     delete gLightMesh;     gLightMesh     = nullptr;
     delete gGroundMesh;    gGroundMesh    = nullptr;
     delete gCrateMesh;     gCrateMesh     = nullptr;
     delete gTeapotMesh;  gTeapotMesh = nullptr;
+
+    delete gCamera;    gCamera = nullptr;
 }
 
 
@@ -411,9 +407,6 @@ void RenderSceneFromCamera(Camera* camera)
     gD3DContext->OMSetBlendState(gNoBlendingState, nullptr, 0xffffff);
     gD3DContext->OMSetDepthStencilState(gUseDepthBufferState, 0);
     gD3DContext->RSSetState(gCullBackState);
-
-    // Select the approriate textures and sampler to use in the pixel shader
-    gD3DContext->PSSetShaderResources(0, 1, &grassTexture->gTextureMapSRV); // First parameter must match texture slot number in the shader
     gD3DContext->PSSetSamplers(0, 1, &gAnisotropic4xSampler);
 
 
@@ -468,33 +461,22 @@ void RenderSceneFromCamera(Camera* camera)
     gTest->Render();
 
     //troll cell shading
-        // Outline drawing - slightly scales object and draws black
+    // rendering outline - slightly scales object and draws black. No textures needed, draws outline in plain colour
     gD3DContext->VSSetShader(cellShadingOutline->vertexShader, nullptr, 0);
     gD3DContext->PSSetShader(cellShadingOutline->pixelShader, nullptr, 0);
-        // States - no blending, normal depth buffer. However, use front culling to draw *inside* of model
     gD3DContext->OMSetBlendState(gNoBlendingState, nullptr, 0xffffff);
     gD3DContext->OMSetDepthStencilState(gUseDepthBufferState, 0);
     gD3DContext->RSSetState(gCullFrontState);
-
-    // No textures needed, draws outline in plain colour
-
-    // Render models, no GPU changes needed between rendering them in this case
     gTroll->Render();
+    gD3DContext->RSSetState(gCullBackState); // switch back to CullBack for the rest of the scene
+
+    // rendering model:
     gD3DContext->VSSetShader(cellShading->vertexShader, nullptr, 0);
     gD3DContext->PSSetShader(cellShading->pixelShader, nullptr, 0);
-
-    // Switch back to the usual back face culling (not inside out)
-    gD3DContext->RSSetState(gCullBackState);
-
-    // Select the troll texture and sampler
-    gD3DContext->PSSetShaderResources(0, 1, &trolltexture->gTextureMapSRV); // First parameter must match texture slot number in the shaer
+    gD3DContext->PSSetShaderResources(0, 1, &trolltexture->gTextureMapSRV); 
     gD3DContext->PSSetSamplers(0, 1, &gAnisotropic4xSampler);
-
-    // Also, cell shading uses a special 1D "cell map", which uses point sampling
-    gD3DContext->PSSetShaderResources(1, 1, &cellMap->gTextureMapSRV); // First parameter must match texture slot number in the shaer
+    gD3DContext->PSSetShaderResources(1, 1, &cellMap->gTextureMapSRV); 
     gD3DContext->PSSetSamplers(1, 1, &gPointSampler);
-
-    // Render troll model
     gTroll->Render();
 
 
@@ -514,7 +496,7 @@ void RenderSceneFromCamera(Camera* camera)
     gD3DContext->RSSetState(gCullNoneState);
 
     // Render all the lights in the array
-    for (int i = 0; i < NUM_LIGHTS; ++i)
+    for (int i = 0; i < gLights.size(); ++i)
     {
         gPerModelConstants.objectColour = gLights[i]->colour; // Set any per-model constants apart from the world matrix just before calling render (light colour here)
         gLights[i]->model->Render();
@@ -522,20 +504,16 @@ void RenderSceneFromCamera(Camera* camera)
 }
 
 
-float wiggleTimer = 0;
 
 // Rendering the scene
 void RenderScene()
 {
-    //// Common settings ////
-
-    // Set up the light information in the constant buffer
-    // Don't send to the GPU yet, the function RenderSceneFromCamera will do that
+    //// set up gPerFrameConstants ready to be sent to the GPU
 
     int numOfPointLights = 0;
     int numOfSpotLights = 0;
     int numOfDirectionalLights = 0;
-    for (int i = 0; i < NUM_LIGHTS; i++)
+    for (int i = 0; i < gLights.size(); i++)
     {
         if (gLights[i]->type == Light::LightType::Point) 
         {
@@ -554,10 +532,6 @@ void RenderScene()
             numOfDirectionalLights++;
         }
     }
-    /*for (int i = 0; i < NUM_LIGHTS; i++)
-    {
-        gPerFrameConstants.light[i] = gLights[i]->GetPointLightData();
-    }*/
 
     gPerFrameConstants.ambientColour  = gAmbientColour;
     gPerFrameConstants.specularPower  = gSpecularPower;
@@ -609,8 +583,6 @@ void RenderScene()
 //--------------------------------------------------------------------------------------
 
 
-int strengthMultiplier = 1;
-int colourMultiplier = 1;
 
 // Update models and camera. frameTime is the time passed since the last frame
 void UpdateScene(float frameTime)
@@ -656,7 +628,6 @@ void UpdateScene(float frameTime)
         frameCount = 0;
     }
 
-    // MYCODE
     gLights[1]->strength -= 0.2f * strengthMultiplier; // 40%
     if (gLights[1]->strength <= 0)                    // make one light pulsate on and off
         strengthMultiplier = -1;                      //

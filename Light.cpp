@@ -3,6 +3,19 @@
 
 #include "CVector3.h"
 #include "Model.h"
+#include "Mesh.h"
+
+Light::Light(LightType pType, CVector3 pColour, float pStrength)
+{
+    gLightMesh = new Mesh("Light.x");
+    model = new Model(gLightMesh);
+    type = pType;
+    colour = pColour;
+    strength = pStrength;
+
+
+    model->SetScale(pow(strength, 0.7f)); // stronger light = bigger model
+}
 
 Light::PointLightData Light::GetPointLightData()
 {

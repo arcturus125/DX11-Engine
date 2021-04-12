@@ -8,6 +8,7 @@
 
 #include "CVector3.h"
 class Model;
+class Mesh;
 
 class Light
 {
@@ -45,6 +46,7 @@ public:
         Directional
     };
 
+    Mesh* gLightMesh;
     LightType type;
     Model* model;
     CVector3 colour;
@@ -52,6 +54,8 @@ public:
    
     // spot light attributes
     float SpotLight_ConeAngle = 90.0f;
+
+    Light(LightType pType,CVector3 pColour, float strength);
 
     PointLightData GetPointLightData();
     SpotLightData GetSpotLightData();
