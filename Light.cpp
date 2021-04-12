@@ -21,3 +21,12 @@ Light::SpotLightData Light::GetSpotLightData()
     data.lightCosHalfAngle = cos(ToRadians(SpotLight_ConeAngle / 2)); // --"--
     return data;
 }
+
+Light::DirectionalLightData Light::GetDirectionalLightData()
+{
+    DirectionalLightData data;
+    data.lightColour = colour * strength;
+    data.lightPosition = model->Position();
+    data.lightFacing = Normalise(model->WorldMatrix().GetZAxis());    // Additional lighting information for Directional lights
+    return data;
+}

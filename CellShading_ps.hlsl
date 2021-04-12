@@ -57,13 +57,13 @@ float4 main(LightingPixelShaderInput input) : SV_Target
 	    //*************************************************************************************************//
         float diffuseLevel1 = max(dot(input.worldNormal, lightDirection), 0);
         float cellDiffuseLevel1 = CellMap.Sample(PointSampleClamp, diffuseLevel1).r;
-        float3 diffuseLight1 = light[i].lightColour * cellDiffuseLevel1 / lightDistance;
+        DiffuseLight = light[i].lightColour * cellDiffuseLevel1 / lightDistance;
 
         float3 halfway = normalize(lightDirection + cameraDirection);
         float3 SpecularLight = DiffuseLight * pow(max(dot(input.worldNormal, halfway), 0), gSpecularPower);
 		
 		
-        sumOfDiffuse += diffuseLight1;
+        sumOfDiffuse += DiffuseLight;
         sumOfSpecular += SpecularLight;
     }
     for (int i = 0; i < gNumSpotLights; i++)
@@ -90,11 +90,35 @@ float4 main(LightingPixelShaderInput input) : SV_Target
 	        //*************************************************************************************************//
             float diffuseLevel1 = max(dot(input.worldNormal, lightDirection), 0);
             float cellDiffuseLevel1 = CellMap.Sample(PointSampleClamp, diffuseLevel1).r;
-            float3 diffuseLight1 = light[i].lightColour * cellDiffuseLevel1 / lightDistance;
+            DiffuseLight = light[i].lightColour * cellDiffuseLevel1 / lightDistance;
 
             float3 halfway = normalize(lightDirection + cameraDirection);
             float3 SpecularLight = DiffuseLight * pow(max(dot(input.worldNormal, halfway), 0), gSpecularPower);
         }
+        sumOfDiffuse += DiffuseLight;
+        sumOfSpecular += SpecularLight;
+    }
+    // directional lights
+    for (int i = 0; i < gNumDirectionalLights; i++)
+    {
+        float3 lightVector = directionalLight[i].lightPosition - input.worldPosition;
+        float3 lightDirection = -directionalLight[i].lightFacing; //lightVector / lightDistance; // Quicker than normalising as we have length for attenuation
+        float3 DiffuseLight = directionalLight[i].lightColour * max(dot(input.worldNormal, lightDirection), 0);
+        
+        //****| INFO |*************************************************************************************//
+	    // To make a cartoon look to the lighting, we clamp the basic light level to just a small range of
+	    // colours. This is done by using the light level itself as the U texture coordinate to look up
+	    // a colour in a special 1D texture (a single line). This could be done with if statements, but
+	    // GPUs are much faster at looking up small textures than if statements
+	    //*************************************************************************************************//
+        float diffuseLevel1 = max(dot(input.worldNormal, lightDirection), 0);
+        float cellDiffuseLevel1 = CellMap.Sample(PointSampleClamp, diffuseLevel1).r;
+        DiffuseLight = directionalLight[i].lightColour * cellDiffuseLevel1 * 3;
+
+        float3 halfway = normalize(lightDirection + cameraDirection);
+        float3 SpecularLight = DiffuseLight * pow(max(dot(input.worldNormal, halfway), 0), gSpecularPower);
+		
+		
         sumOfDiffuse += DiffuseLight;
         sumOfSpecular += SpecularLight;
     }

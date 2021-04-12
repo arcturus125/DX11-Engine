@@ -28,11 +28,21 @@ public:
         CVector3   lightFacing;
         float      lightCosHalfAngle;
     };
+    struct DirectionalLightData
+    {
+        CVector3   lightPosition;
+        float      padding1;
+        CVector3   lightColour;
+        float      padding2;
+        CVector3   lightFacing;
+        float      padding3;
+    };
 
     enum class LightType
     {
         Point,
-        Spot
+        Spot,
+        Directional
     };
 
     LightType type;
@@ -45,6 +55,7 @@ public:
 
     PointLightData GetPointLightData();
     SpotLightData GetSpotLightData();
+    DirectionalLightData GetDirectionalLightData();
 
 
 };

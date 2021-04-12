@@ -59,7 +59,7 @@ Model* gTroll;
 Camera* gCamera;
 
 
-const int NUM_LIGHTS = 2;
+const int NUM_LIGHTS = 3;
 Light* gLights[NUM_LIGHTS]; 
 
 
@@ -78,12 +78,8 @@ bool lockFPS = true;
 
 
 //--------------------------------------------------------------------------------------
-// Constant Buffers
+// Constant Buffers: Variables sent over to the GPU each frame
 //--------------------------------------------------------------------------------------
-// Variables sent over to the GPU each frame
-// The structures are now in Common.h
-// IMPORTANT: Any new data you add in C++ code (CPU-side) is not automatically available to the GPU
-//            Anything the shaders need (per-frame or per-model) needs to be sent via a constant buffer
 
 PerFrameConstants gPerFrameConstants;      // The constants that need to be sent to the GPU each frame (see common.h for structure)
 ID3D11Buffer*     gPerFrameConstantBuffer; // The GPU buffer that will recieve the constants above
@@ -147,8 +143,9 @@ float    OutlineThickness = 0.015f;
 // Returns true on success
 bool InitGeometry()
 {
-    // Load mesh geometry data, just like TL-Engine this doesn't create anything in the scene. Create a Model for that.
-    // IMPORTANT NOTE: Will only keep the first object from the mesh - multipart objects will have parts missing - see later lab for more robust loader
+    // #############################
+    //  load Meshes
+    // #############################
     try 
     {
         gTeapotMesh = new Mesh("teapot.x");
@@ -162,10 +159,10 @@ bool InitGeometry()
         gGroundMesh   = new Mesh("Hills.x", true);
         gLightMesh    = new Mesh("Light.x");
     }
-    catch (std::runtime_error e)  // Constructors cannot return error messages so use exceptions to catch mesh errors (fairly standard approach this)
+    // if there is an error loading any of these meshes, display error message to user
+    catch (std::runtime_error e)
     {
-        gLastError = e.what(); // This picks up the error message put in the exception (see Mesh.cpp)
-        return false;
+        gLastError = e.what();
     }
 
 
@@ -248,14 +245,15 @@ bool InitGeometry()
         textures.push_back(lightTexture);
         textures.push_back(patternTexture);
     }
-    catch (std::runtime_error e)  // Constructors cannot return error messages so use exceptions to catch mesh errors (fairly standard approach this)
+    // if there is an error loading any of these meshes, display error message to user
+    catch (std::runtime_error e)
     {
-        gLastError = e.what(); // This picks up the error message put in the exception (see Mesh.cpp)
+        gLastError = e.what();
         return false;
     }
 
 
-  	// Create all filtering modes, blending modes etc. used by the app (see State.cpp/.h)
+  	// Create all filtering modes, blending modes etc.
 	if (!CreateStates())
 	{
 		gLastError = "Error creating states";
@@ -270,7 +268,10 @@ bool InitGeometry()
 // Returns true on success
 bool InitScene()
 {
-    //// Set up scene ////
+
+    // #############################
+    //  create models
+    // #############################
 
     gTeapot   = new Model(gTeapotMesh);
     gSphere     = new Model(gSphereMesh);
@@ -282,7 +283,7 @@ bool InitScene()
     gTroll = new Model(gTrollMesh);
 
 
-	// Initial positions
+	// Position models
 	gTeapot->SetPosition({ 20, 0, 0 });
     gTeapot->SetScale(1); 
     gTeapot->SetRotation({ 0, ToRadians(135.0f), 0 });
@@ -292,12 +293,13 @@ bool InitScene()
     gBumpedCube->SetPosition({ 60,30,20 });
 	gCrate-> SetPosition({ 45, 0, 45 });
 	gCrate-> SetScale(6);
-	gCrate-> SetRotation({ 0.0f, ToRadians(-50.0f), 0.0f });
     gTroll->SetPosition({ 30, 30, 10 });
     gTroll->SetScale(5);
 
 
-    // Light set-up - using an array this time
+    // #############################
+    //  create Lights
+    // #############################
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
         gLights[i] = new Light();
@@ -308,7 +310,7 @@ bool InitScene()
     gLights[0]->colour = { 0.8f, 0.8f, 1.0f };
     gLights[0]->strength = 10;
     gLights[0]->model->SetPosition({ 30, 20, 0 });
-    gLights[0]->model->SetScale(pow(gLights[0]->strength, 0.7f)); // Convert light strength into a nice value for the scale of the light - equation is ad-hoc.
+    gLights[0]->model->SetScale(pow(gLights[0]->strength, 0.7f)); // stronger light = bigger model
 
 
     gLights[1]->type = Light::LightType::Point;
@@ -317,8 +319,17 @@ bool InitScene()
     gLights[1]->model->SetPosition({ -20, 50, 20 });
     gLights[1]->model->SetScale(pow(gLights[1]->strength, 0.7f));
 
+    gLights[2]->type = Light::LightType::Directional;
+    gLights[2]->colour = { 1.0f, 0.1f, 1.0f };
+    gLights[2]->strength = 0.4f;
+    gLights[2]->model->SetPosition({ 60,40,20 });
+    gLights[2]->model->SetRotation({ ToRadians(50.0f), ToRadians(-50.0f), 0.0f });
+    gLights[2]->model->SetScale(pow(gLights[0]->strength, 0.7f));
 
-    //// Set up camera ////
+
+    // #############################
+    //  create camera
+    // #############################
 
     gCamera = new Camera();
     gCamera->SetPosition({ 15, 30,-70 });
@@ -523,6 +534,7 @@ void RenderScene()
 
     int numOfPointLights = 0;
     int numOfSpotLights = 0;
+    int numOfDirectionalLights = 0;
     for (int i = 0; i < NUM_LIGHTS; i++)
     {
         if (gLights[i]->type == Light::LightType::Point) 
@@ -530,10 +542,16 @@ void RenderScene()
             gPerFrameConstants.light[numOfPointLights] = gLights[i]->GetPointLightData();
             numOfPointLights++; 
         }
-        if (gLights[i]->type == Light::LightType::Spot)
+        else if (gLights[i]->type == Light::LightType::Spot)
         {
             gPerFrameConstants.spotLight[numOfSpotLights] = gLights[i]->GetSpotLightData();
             numOfSpotLights++;
+        }
+        else if (gLights[i]->type == Light::LightType::Directional)
+        {
+
+            gPerFrameConstants.directionalLight[numOfDirectionalLights] = gLights[i]->GetDirectionalLightData();
+            numOfDirectionalLights++;
         }
     }
     /*for (int i = 0; i < NUM_LIGHTS; i++)
@@ -550,6 +568,7 @@ void RenderScene()
     gPerFrameConstants.outlineThickness = OutlineThickness;
     gPerFrameConstants.numLights = numOfPointLights;
     gPerFrameConstants.numSpotLights = numOfSpotLights;
+    gPerFrameConstants.numDirectionalLights = numOfDirectionalLights;
 
 
 

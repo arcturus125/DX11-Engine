@@ -66,6 +66,7 @@ struct PerFrameConstants
 
     Light::PointLightData light[4];
     Light::SpotLightData spotLight[4];
+    Light::DirectionalLightData directionalLight[4];
 
 
     float timer;
@@ -83,6 +84,7 @@ struct PerFrameConstants
 
     int numLights;
     int numSpotLights;
+    int numDirectionalLights;
 
 
 };

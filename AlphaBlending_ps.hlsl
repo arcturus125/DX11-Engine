@@ -48,6 +48,7 @@ float4 main(LightingPixelShaderInput input) : SV_Target
     float3 sumOfDiffuse = 0;
     float3 sumOfSpecular = 0;
 
+    // point lights
     for (int i = 0; i < gNumLights; i++)
     {
         float3 lightVector = light[i].lightPosition - input.worldPosition;
@@ -62,6 +63,7 @@ float4 main(LightingPixelShaderInput input) : SV_Target
         sumOfDiffuse += DiffuseLight;
         sumOfSpecular += SpecularLight;
     }
+    // spot lights
     for (int i = 0; i < gNumSpotLights; i++)
     {
         float3 DiffuseLight = 0;
@@ -73,7 +75,7 @@ float4 main(LightingPixelShaderInput input) : SV_Target
 		
         if (dot(spotLight[i].lightFacing, -lightDirection) > cos(spotLight[i].lightCosHalfAngle)) // check if pixel is within the cone of the spot light
         {
-            float3 lightVector = light[i].lightPosition - input.worldPosition;
+            float3 lightVector = spotLight[i].lightPosition - input.worldPosition;
             float lightDistance = length(lightVector);
             float3 lightDirection = lightVector / lightDistance; // Quicker than normalising as we have length for attenuation
             DiffuseLight = spotLight[i].lightColour * max(dot(input.worldNormal, lightDirection), 0) / lightDistance;
@@ -81,6 +83,21 @@ float4 main(LightingPixelShaderInput input) : SV_Target
             float3 halfway = normalize(lightDirection + cameraDirection);
             SpecularLight = DiffuseLight * pow(max(dot(input.worldNormal, halfway), 0), gSpecularPower);
         }
+        sumOfDiffuse += DiffuseLight;
+        sumOfSpecular += SpecularLight;
+    }
+    // directional lights
+    for (int i = 0; i < gNumDirectionalLights; i++)
+    {
+        float3 lightVector = directionalLight[i].lightPosition - input.worldPosition;
+        float3 lightDirection = -directionalLight[i].lightFacing; //lightVector / lightDistance; // Quicker than normalising as we have length for attenuation
+
+        float3 DiffuseLight = directionalLight[i].lightColour * max(dot(input.worldNormal, lightDirection), 0);
+
+        float3 halfway = normalize(lightDirection + cameraDirection);
+        float3 SpecularLight = DiffuseLight * pow(max(dot(input.worldNormal, halfway), 0), gSpecularPower);
+		
+		
         sumOfDiffuse += DiffuseLight;
         sumOfSpecular += SpecularLight;
     }

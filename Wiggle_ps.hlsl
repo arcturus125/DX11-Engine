@@ -78,6 +78,21 @@ float4 main(LightingPixelShaderInput input) : SV_Target
         sumOfDiffuse += DiffuseLight;
         sumOfSpecular += SpecularLight;
     }
+    // directional lights
+    for (int i = 0; i < gNumDirectionalLights; i++)
+    {
+        float3 lightVector = directionalLight[i].lightPosition - input.worldPosition;
+        float3 lightDirection = -directionalLight[i].lightFacing; //lightVector / lightDistance; // Quicker than normalising as we have length for attenuation
+
+        float3 DiffuseLight = directionalLight[i].lightColour * max(dot(input.worldNormal, lightDirection), 0) ;
+
+        float3 halfway = normalize(lightDirection + cameraDirection);
+        float3 SpecularLight = DiffuseLight * pow(max(dot(input.worldNormal, halfway), 0), gSpecularPower);
+		
+		
+        sumOfDiffuse += DiffuseLight;
+        sumOfSpecular += SpecularLight;
+    }
     
 	// Sum the effect of the lights - add the ambient at this stage rather than for each light (or we will get too much ambient)
     float3 diffuseLight = gAmbientColour + sumOfDiffuse;

@@ -14,7 +14,11 @@
 class Shader
 {
 public:
-	// make a note here
+	// load a pixel and vertex shader from a filename
+	// _ps and vs file extensions are appended to the filename you provide
+	// when boolean set to false, the default ps and vs are loaded instead
+	// Example:
+	// Shader("AlphaBlending", true, false) will load AlphaBlending_ps with the default vertex shader
 	Shader(std::string shaderfileName, bool loadPixelShader = true, bool loadVertexShader = true);
 
 

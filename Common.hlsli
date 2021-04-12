@@ -86,6 +86,16 @@ struct SpotLight
     float3 lightFacing;
     float lightCosHalfAngle;
 };
+struct DirectionalLight
+{
+    float3 lightPosition;
+    float padding1;
+    float3 lightColour;
+    float padding2;
+    float3 lightFacing;
+    float padding3;
+};
+
 //--------------------------------------------------------------------------------------
 // Constant Buffers
 //--------------------------------------------------------------------------------------
@@ -105,6 +115,7 @@ cbuffer PerFrameConstants : register(b0) // The b0 gives this constant buffer th
     
     PointLight light[4];
     SpotLight spotLight[4];
+    DirectionalLight directionalLight[4];
     
     
     float gtimer;
@@ -120,6 +131,7 @@ cbuffer PerFrameConstants : register(b0) // The b0 gives this constant buffer th
     
     int gNumLights;
     int gNumSpotLights;
+    int gNumDirectionalLights;
 }
 // Note constant buffers are not structs: we don't use the name of the constant buffer, these are really just a collection of global variables (hence the 'g')
 
