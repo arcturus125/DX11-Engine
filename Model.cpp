@@ -6,6 +6,7 @@
 
 #include "Model.h"
 
+#include "Scene.h"
 #include "Common.h"
 #include "GraphicsHelpers.h"
 #include "Mesh.h"
@@ -28,6 +29,21 @@ void Model::Render()
 {
     //mMesh->RenderRecursive(mWorldMatrices);
     mMesh->Render(mWorldMatrices);
+}
+
+void Model::AutoRender(ID3D11DeviceContext* cBufferConstants)
+{
+	cBufferConstants->VSSetShader(shader->vertexShader, nullptr, 0);
+	cBufferConstants->PSSetShader(shader->pixelShader, nullptr, 0);
+	cBufferConstants->PSSetSamplers(0, 1, &sampler);
+	cBufferConstants->OMSetBlendState(blender, nullptr, 0xffffff);
+	cBufferConstants->OMSetDepthStencilState(depth, 0);
+
+	for (int i = 0; i < textures.size(); i++)
+	{
+		cBufferConstants->PSSetShaderResources(i, 1, &textures[i]->gTextureMapSRV);
+	}
+	mMesh->Render(mWorldMatrices);
 }
 
 

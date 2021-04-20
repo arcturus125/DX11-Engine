@@ -10,6 +10,9 @@
 #include "Input.h"
 
 #include <vector>
+#include "Shader.h"
+#include "Texture.h"
+#include "State.h"
 
 #ifndef _MODEL_H_INCLUDED_
 #define _MODEL_H_INCLUDED_
@@ -24,11 +27,44 @@ public:
 	//-------------------------------------
 
     Model(Mesh* mesh, CVector3 position = { 0,0,0 }, CVector3 rotation = { 0,0,0 }, float scale = 1);
+    Shader* shader = new Shader("PixelLighting");
+
+    ID3D11SamplerState* sampler = gAnisotropic4xSampler;
+    ID3D11BlendState* blender = gNoBlendingState;
+    ID3D11RasterizerState* culling = gCullBackState;
+    ID3D11DepthStencilState* depth = gUseDepthBufferState;
+
+    void SetShader(Shader* s)
+    {
+        shader = s;
+    }
+
+    void addTexture(Texture* t)
+    {
+        textures.push_back(t);
+    }
+    void SetSampler(ID3D11SamplerState* s)
+    {
+        sampler = s;
+    }
+    void SetBlendingState(ID3D11BlendState* b)
+    {
+        blender = b;
+    }
+    void SetCullingState(ID3D11RasterizerState* c)
+    {
+        culling = c;
+    }
+    void SetDepthBufferState(ID3D11DepthStencilState* d)
+    {
+        depth = d;
+    }
 
 
     // The render function simply passes this model's matrices over to Mesh:Render.
     // All other per-frame constants must have been set already along with shaders, textures, samplers, states etc.
     void Render();
+    void AutoRender(ID3D11DeviceContext* cBufferConstants);
 
 
 	// Control a given node in the model using keys provided. Amount of motion performed depends on frame time
@@ -81,6 +117,8 @@ public:
 	//-------------------------------------
 private:
     Mesh* mMesh;
+
+    std::vector<Texture*> textures;
 
 	// World matrices for the model
     // Now that meshes have multiple parts, we need multiple matrices. The root matrix (the first one) is the world matrix

@@ -26,6 +26,8 @@
 
 
 
+
+
 // Lock FPS to monitor refresh rate, which will typically set it to 60fps. Press 'p' to toggle to full fps
 bool lockFPS = true;
 
@@ -39,6 +41,8 @@ float wiggleTimer = 0;
 //--------------------------------------------------------------------------------------
 // Scene Data
 //--------------------------------------------------------------------------------------
+std::vector <Model*> autoRenderList;
+
 
 Mesh* gTeapotMesh;
 Mesh* gSphereMesh;
@@ -271,7 +275,7 @@ bool InitGeometry()
 
 // Prepare the scene
 // Returns true on success
-bool InitScene()
+bool InitScene() // start ()
 {
 
     // #############################
@@ -287,19 +291,51 @@ bool InitScene()
     gTest       = new Model(gCubeMesh);
     gTroll      = new Model(gTrollMesh);
 
+    autoRenderList.push_back(gTeapot);
+    autoRenderList.push_back(gSphere);
+    autoRenderList.push_back(gCube);
+    autoRenderList.push_back(gBumpedCube);
+    autoRenderList.push_back(gCrate);
+    autoRenderList.push_back(gGround);
+    autoRenderList.push_back(gTest);
+
 
 	// Position models
 	gTeapot->SetPosition({ 20, 0, 0 });
     gTeapot->SetScale(1); 
     gTeapot->SetRotation({ 0, ToRadians(135.0f), 0 });
+    gTeapot->addTexture(characterTexture);
+
     gSphere->SetPosition({ 10,10,10 });
+    gSphere->SetShader(wiggleShader);
+    gSphere->addTexture( characterTexture);
+
     gTest->SetPosition({ 10,20,10 });
+    gTest->SetShader(AlphaBlendingShader);
+    gTest->addTexture(alphaTexture);
+    gTest->SetBlendingState(gAlphaBlendingState);
+
     gCube->SetPosition({ 30,20,10 });
+    gCube->SetShader(fadingShader);
+    gCube->addTexture(characterTexture);
+    gCube->addTexture(woodTexture);
+
     gBumpedCube->SetPosition({ 60,30,20 });
+    gBumpedCube->SetShader(normalMappingShader);
+    gBumpedCube->addTexture(patternTexture);
+    gBumpedCube->addTexture(paternNormalMap);
+
 	gCrate-> SetPosition({ 45, 0, 45 });
 	gCrate-> SetScale(6);
+    gCrate->addTexture(crateTexture);
+
+
     gTroll->SetPosition({ 30, 30, 10 });
     gTroll->SetScale(5);
+
+    gGround->SetShader(parallaxMappingShader);
+    gGround->addTexture(cobbleTexture);
+    gGround->addTexture(cobbleNormalMap);
 
 
     // #############################
@@ -396,69 +432,10 @@ void RenderSceneFromCamera(Camera* camera)
     gD3DContext->VSSetConstantBuffers(0, 1, &gPerFrameConstantBuffer); // First parameter must match constant buffer number in the shader 
     gD3DContext->PSSetConstantBuffers(0, 1, &gPerFrameConstantBuffer);
 
-
-    //// Render lit models ////
-
-    // Select which shaders to use next
-    gD3DContext->VSSetShader(defaultShader->vertexShader, nullptr, 0);
-    gD3DContext->PSSetShader(defaultShader->pixelShader,  nullptr, 0);
-    
-    // States - no blending, normal depth buffer and culling
-    gD3DContext->OMSetBlendState(gNoBlendingState, nullptr, 0xffffff);
-    gD3DContext->OMSetDepthStencilState(gUseDepthBufferState, 0);
-    gD3DContext->RSSetState(gCullBackState);
-    gD3DContext->PSSetSamplers(0, 1, &gAnisotropic4xSampler);
-
-
-    
-
-
-    // Render other lit models, only change textures for each onee
-    gD3DContext->PSSetShaderResources(0, 1, &characterTexture->gTextureMapSRV); 
-    gTeapot->Render();
-
-    gD3DContext->PSSetShaderResources(0, 1, &crateTexture->gTextureMapSRV);
-    gCrate->Render();
-
-
-
-
-
-    //sphere
-    gD3DContext->VSSetShader(wiggleShader->vertexShader, nullptr, 0);
-    gD3DContext->PSSetShader(wiggleShader->pixelShader, nullptr, 0);
-    gD3DContext->PSSetShaderResources(0, 1, &characterTexture->gTextureMapSRV);
-    gSphere->Render();
-
-    //cube
-    gD3DContext->VSSetShader(fadingShader->vertexShader, nullptr, 0);
-    gD3DContext->PSSetShader(fadingShader->pixelShader, nullptr, 0);
-    gD3DContext->PSSetShaderResources(0, 1, &characterTexture->gTextureMapSRV);// pass first texture to shader
-    gD3DContext->PSSetShaderResources(1, 1, &woodTexture->gTextureMapSRV);// pass second texture to shader
-    gCube->Render();
-
-    //bumped cube
-    gD3DContext->VSSetShader(normalMappingShader->vertexShader, nullptr, 0);
-    gD3DContext->PSSetShader(normalMappingShader->pixelShader, nullptr, 0);
-    gD3DContext->PSSetShaderResources(0, 1, &patternTexture->gTextureMapSRV);// pass first texture to shader
-    gD3DContext->PSSetShaderResources(1, 1, &paternNormalMap->gTextureMapSRV);// pass second texture to shader
-    gD3DContext->PSSetSamplers(0, 1, &gAnisotropic4xSampler);
-    gBumpedCube->Render();
-
-
-    // paralax mapped ground
-    gD3DContext->VSSetShader(parallaxMappingShader->vertexShader, nullptr, 0);
-    gD3DContext->PSSetShader(parallaxMappingShader->pixelShader, nullptr, 0);
-    gD3DContext->PSSetShaderResources(0, 1, &cobbleTexture->gTextureMapSRV);// pass first texture to shader
-    gD3DContext->PSSetShaderResources(1, 1, &cobbleNormalMap->gTextureMapSRV);// pass second texture to shader
-    gGround->Render();
-
-
-    gD3DContext->VSSetShader(AlphaBlendingShader->vertexShader, nullptr, 0);
-    gD3DContext->PSSetShader(AlphaBlendingShader->pixelShader, nullptr, 0);
-    gD3DContext->PSSetShaderResources(0, 1, &alphaTexture->gTextureMapSRV);// pass second texture to shader
-    gD3DContext->OMSetBlendState(gAlphaBlendingState, nullptr, 0xffffff);
-    gTest->Render();
+    for (int i = 0; i < autoRenderList.size(); i++)
+    {
+        autoRenderList[i]->AutoRender(gD3DContext);
+    }
 
     //troll cell shading
     // rendering outline - slightly scales object and draws black. No textures needed, draws outline in plain colour
