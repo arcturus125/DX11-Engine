@@ -19,6 +19,8 @@ Model::Model(Mesh* mesh, CVector3 position /*= { 0,0,0 }*/, CVector3 rotation /*
     mWorldMatrices.resize(mesh->NumberNodes());
     for (int i = 0; i < mWorldMatrices.size(); ++i)
         mWorldMatrices[i] = mesh->GetNodeDefaultMatrix(i);
+	RendererPass temp;
+	renderPass.push_back(temp);
 }
 
 
@@ -31,17 +33,23 @@ void Model::Render()
     mMesh->Render(mWorldMatrices);
 }
 
-void Model::AutoRender(ID3D11DeviceContext* cBufferConstants)
+void Model::AutoRender(ID3D11DeviceContext* cBufferConstants, int rendererIndex)
 {
-	cBufferConstants->VSSetShader(shader->vertexShader, nullptr, 0);
-	cBufferConstants->PSSetShader(shader->pixelShader, nullptr, 0);
-	cBufferConstants->PSSetSamplers(0, 1, &sampler);
-	cBufferConstants->OMSetBlendState(blender, nullptr, 0xffffff);
-	cBufferConstants->OMSetDepthStencilState(depth, 0);
+	cBufferConstants->VSSetShader(renderPass[rendererIndex].shader->vertexShader, nullptr, 0);
+	cBufferConstants->PSSetShader(renderPass[rendererIndex].shader->pixelShader, nullptr, 0);
+	cBufferConstants->OMSetBlendState(renderPass[rendererIndex].blender, nullptr, 0xffffff);
+	cBufferConstants->OMSetDepthStencilState(renderPass[rendererIndex].depth, 0);
 
-	for (int i = 0; i < textures.size(); i++)
+	cBufferConstants->RSSetState(renderPass[rendererIndex].culling);
+
+	for (int i = 0; i < renderPass[rendererIndex].sampler.size(); i++)
 	{
-		cBufferConstants->PSSetShaderResources(i, 1, &textures[i]->gTextureMapSRV);
+		cBufferConstants->PSSetSamplers(i, 1, &renderPass[rendererIndex].sampler[i]);
+	}
+
+	for (int i = 0; i < renderPass[rendererIndex].textures.size(); i++)
+	{
+		cBufferConstants->PSSetShaderResources(i, 1, &renderPass[rendererIndex].textures[i]->gTextureMapSRV);
 	}
 	mMesh->Render(mWorldMatrices);
 }

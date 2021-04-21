@@ -333,6 +333,21 @@ bool InitScene() // start ()
     gTroll->SetPosition({ 30, 30, 10 });
     gTroll->SetScale(5);
 
+    gTroll->SetShader(cellShadingOutline);
+    gTroll->SetBlendingState(gNoBlendingState);
+    gTroll->SetDepthBufferState(gUseDepthBufferState);
+    gTroll->SetCullingState(gCullFrontState);
+
+    gTroll->AddRendererPass();
+    gTroll->SetShader(cellShading, 1);
+    gTroll->addTexture(trolltexture,1);
+    gTroll->addTexture(cellMap,1);
+    gTroll->SetSampler(gAnisotropic4xSampler,1);
+    gTroll->AddSampler(gPointSampler, 1);
+    gTroll->SetCullingState(gCullBackState,1);
+    autoRenderList.push_back(gTroll);
+
+
     gGround->SetShader(parallaxMappingShader);
     gGround->addTexture(cobbleTexture);
     gGround->addTexture(cobbleNormalMap);
@@ -434,27 +449,11 @@ void RenderSceneFromCamera(Camera* camera)
 
     for (int i = 0; i < autoRenderList.size(); i++)
     {
-        autoRenderList[i]->AutoRender(gD3DContext);
+        for (int j = 0; j < autoRenderList[i]->renderPass.size(); j++)
+        {
+            autoRenderList[i]->AutoRender(gD3DContext, j);
+        }
     }
-
-    //troll cell shading
-    // rendering outline - slightly scales object and draws black. No textures needed, draws outline in plain colour
-    gD3DContext->VSSetShader(cellShadingOutline->vertexShader, nullptr, 0);
-    gD3DContext->PSSetShader(cellShadingOutline->pixelShader, nullptr, 0);
-    gD3DContext->OMSetBlendState(gNoBlendingState, nullptr, 0xffffff);
-    gD3DContext->OMSetDepthStencilState(gUseDepthBufferState, 0);
-    gD3DContext->RSSetState(gCullFrontState);
-    gTroll->Render();
-    gD3DContext->RSSetState(gCullBackState); // switch back to CullBack for the rest of the scene
-
-    // rendering model:
-    gD3DContext->VSSetShader(cellShading->vertexShader, nullptr, 0);
-    gD3DContext->PSSetShader(cellShading->pixelShader, nullptr, 0);
-    gD3DContext->PSSetShaderResources(0, 1, &trolltexture->gTextureMapSRV); 
-    gD3DContext->PSSetSamplers(0, 1, &gAnisotropic4xSampler);
-    gD3DContext->PSSetShaderResources(1, 1, &cellMap->gTextureMapSRV); 
-    gD3DContext->PSSetSamplers(1, 1, &gPointSampler);
-    gTroll->Render();
 
 
     //// Render lights ////

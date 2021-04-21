@@ -27,44 +27,58 @@ public:
 	//-------------------------------------
 
     Model(Mesh* mesh, CVector3 position = { 0,0,0 }, CVector3 rotation = { 0,0,0 }, float scale = 1);
-    Shader* shader = new Shader("PixelLighting");
 
-    ID3D11SamplerState* sampler = gAnisotropic4xSampler;
-    ID3D11BlendState* blender = gNoBlendingState;
-    ID3D11RasterizerState* culling = gCullBackState;
-    ID3D11DepthStencilState* depth = gUseDepthBufferState;
+    struct RendererPass
+    {
+        Shader* shader = new Shader("PixelLighting");
+        std::vector<Texture*> textures;
+        std::vector<ID3D11SamplerState*> sampler = { gAnisotropic4xSampler };
+        ID3D11BlendState* blender = gNoBlendingState;
+        ID3D11RasterizerState* culling = gCullBackState;
+        ID3D11DepthStencilState* depth = gUseDepthBufferState;
+    };
+    std::vector<RendererPass> renderPass;
 
-    void SetShader(Shader* s)
+    void AddRendererPass()
     {
-        shader = s;
+        RendererPass temp;
+        renderPass.push_back(temp);
     }
-
-    void addTexture(Texture* t)
+    void SetShader(Shader* s, int renderPassIndex = 0)
     {
-        textures.push_back(t);
+        renderPass[renderPassIndex].shader = s;
     }
-    void SetSampler(ID3D11SamplerState* s)
+    void addTexture(Texture* t, int renderPassIndex = 0)
     {
-        sampler = s;
+        renderPass[renderPassIndex].textures.push_back(t);
     }
-    void SetBlendingState(ID3D11BlendState* b)
+    void SetSampler(ID3D11SamplerState* s, int renderPassIndex = 0)
     {
-        blender = b;
+        renderPass[renderPassIndex].sampler.clear();
+        renderPass[renderPassIndex].sampler.push_back(s);
     }
-    void SetCullingState(ID3D11RasterizerState* c)
+    void AddSampler(ID3D11SamplerState* s, int renderPassIndex = 0)
     {
-        culling = c;
+        renderPass[renderPassIndex].sampler.push_back(s);
     }
-    void SetDepthBufferState(ID3D11DepthStencilState* d)
+    void SetBlendingState(ID3D11BlendState* b, int renderPassIndex = 0)
     {
-        depth = d;
+        renderPass[renderPassIndex].blender = b;
+    }
+    void SetCullingState(ID3D11RasterizerState* c, int renderPassIndex = 0)
+    {
+        renderPass[renderPassIndex].culling = c;
+    }
+    void SetDepthBufferState(ID3D11DepthStencilState* d, int renderPassIndex = 0)
+    {
+        renderPass[renderPassIndex].depth = d;
     }
 
 
     // The render function simply passes this model's matrices over to Mesh:Render.
     // All other per-frame constants must have been set already along with shaders, textures, samplers, states etc.
     void Render();
-    void AutoRender(ID3D11DeviceContext* cBufferConstants);
+    void AutoRender(ID3D11DeviceContext* cBufferConstants, int rendererIndex);
 
 
 	// Control a given node in the model using keys provided. Amount of motion performed depends on frame time
@@ -118,7 +132,6 @@ public:
 private:
     Mesh* mMesh;
 
-    std::vector<Texture*> textures;
 
 	// World matrices for the model
     // Now that meshes have multiple parts, we need multiple matrices. The root matrix (the first one) is the world matrix
