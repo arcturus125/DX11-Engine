@@ -1,0 +1,97 @@
+﻿P:\StrangeEngineMK2\StrangeEngineMK2\AlphaBlending_ps.hlsl(67,14): warning X3078: 'i': loop control variable conflicts with a previous declaration in the outer scope; most recent declaration will be used
+P:\StrangeEngineMK2\StrangeEngineMK2\AlphaBlending_ps.hlsl(90,14): warning X3078: 'i': loop control variable conflicts with a previous declaration in the outer scope; most recent declaration will be used
+  
+  compilation object save succeeded; see P:\StrangeEngineMK2\Debug\AlphaBlending_ps.cso
+  compilation object save succeeded; see P:\StrangeEngineMK2\Debug\BasicTransform_vs.cso
+  compilation object save succeeded; see P:\StrangeEngineMK2\Debug\CellShadingOutline_ps.cso
+P:\StrangeEngineMK2\StrangeEngineMK2\CellShadingOutline_vs.hlsl(15,29-54): warning X3578: Output value 'main' is not completely initialized
+  
+  compilation object save succeeded; see P:\StrangeEngineMK2\Debug\CellShadingOutline_vs.cso
+P:\StrangeEngineMK2\StrangeEngineMK2\CellShading_ps.hlsl(69,14): warning X3078: 'i': loop control variable conflicts with a previous declaration in the outer scope; most recent declaration will be used
+P:\StrangeEngineMK2\StrangeEngineMK2\CellShading_ps.hlsl(102,14): warning X3078: 'i': loop control variable conflicts with a previous declaration in the outer scope; most recent declaration will be used
+  
+  compilation object save succeeded; see P:\StrangeEngineMK2\Debug\CellShading_ps.cso
+  compilation object save succeeded; see P:\StrangeEngineMK2\Debug\CellShading_vs.cso
+P:\StrangeEngineMK2\StrangeEngineMK2\Fading_ps.hlsl(59,14): warning X3078: 'i': loop control variable conflicts with a previous declaration in the outer scope; most recent declaration will be used
+P:\StrangeEngineMK2\StrangeEngineMK2\Fading_ps.hlsl(82,14): warning X3078: 'i': loop control variable conflicts with a previous declaration in the outer scope; most recent declaration will be used
+  
+  compilation object save succeeded; see P:\StrangeEngineMK2\Debug\Fading_ps.cso
+  compilation object save succeeded; see P:\StrangeEngineMK2\Debug\Fading_vs.cso
+  compilation object save succeeded; see P:\StrangeEngineMK2\Debug\LightModel_ps.cso
+P:\StrangeEngineMK2\StrangeEngineMK2\NormalMapping_ps.hlsl(104,14): warning X3078: 'i': loop control variable conflicts with a previous declaration in the outer scope; most recent declaration will be used
+P:\StrangeEngineMK2\StrangeEngineMK2\NormalMapping_ps.hlsl(127,14): warning X3078: 'i': loop control variable conflicts with a previous declaration in the outer scope; most recent declaration will be used
+  
+  compilation object save succeeded; see P:\StrangeEngineMK2\Debug\NormalMapping_ps.cso
+  compilation object save succeeded; see P:\StrangeEngineMK2\Debug\NormalMapping_vs.cso
+P:\StrangeEngineMK2\StrangeEngineMK2\ParallaxMapping_ps.hlsl(137,14): warning X3078: 'i': loop control variable conflicts with a previous declaration in the outer scope; most recent declaration will be used
+P:\StrangeEngineMK2\StrangeEngineMK2\ParallaxMapping_ps.hlsl(160,14): warning X3078: 'i': loop control variable conflicts with a previous declaration in the outer scope; most recent declaration will be used
+  
+  compilation object save succeeded; see P:\StrangeEngineMK2\Debug\ParallaxMapping_ps.cso
+  compilation object save succeeded; see P:\StrangeEngineMK2\Debug\ParallaxMapping_vs.cso
+P:\StrangeEngineMK2\StrangeEngineMK2\PixelLighting_ps.hlsl(60,14): warning X3078: 'i': loop control variable conflicts with a previous declaration in the outer scope; most recent declaration will be used
+P:\StrangeEngineMK2\StrangeEngineMK2\PixelLighting_ps.hlsl(83,14): warning X3078: 'i': loop control variable conflicts with a previous declaration in the outer scope; most recent declaration will be used
+  
+  compilation object save succeeded; see P:\StrangeEngineMK2\Debug\PixelLighting_ps.cso
+  compilation object save succeeded; see P:\StrangeEngineMK2\Debug\PixelLighting_vs.cso
+P:\StrangeEngineMK2\StrangeEngineMK2\Wiggle_ps.hlsl(59,14): warning X3078: 'i': loop control variable conflicts with a previous declaration in the outer scope; most recent declaration will be used
+P:\StrangeEngineMK2\StrangeEngineMK2\Wiggle_ps.hlsl(82,14): warning X3078: 'i': loop control variable conflicts with a previous declaration in the outer scope; most recent declaration will be used
+  
+  compilation object save succeeded; see P:\StrangeEngineMK2\Debug\Wiggle_ps.cso
+  compilation object save succeeded; see P:\StrangeEngineMK2\Debug\Wiggle_vs.cso
+  pch.cpp
+  Camera.cpp
+  Direct3DSetup.cpp
+  dllmain.cpp
+  Light.cpp
+P:\StrangeEngineMK2\StrangeEngineMK2\Texture.h(5,21): warning C4099: 'ID3D11Resource': type name first seen using 'struct' now seen using 'class'
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(2210): message : see declaration of 'ID3D11Resource'
+P:\StrangeEngineMK2\StrangeEngineMK2\Texture.h(6,31): warning C4099: 'ID3D11ShaderResourceView': type name first seen using 'struct' now seen using 'class'
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(3618): message : see declaration of 'ID3D11ShaderResourceView'
+P:\StrangeEngineMK2\StrangeEngineMK2\External\assimp\include\assimp\material.inl(106,21): error C2589: '(': illegal token on right side of '::'
+P:\StrangeEngineMK2\StrangeEngineMK2\External\assimp\include\assimp\material.inl(106,21): message : This diagnostic occurred in the compiler generated function 'aiReturn aiMaterial::Get(const char *,unsigned int,unsigned int,Type *,unsigned int *) const'
+  Main.cpp
+  CMatrix4x4.cpp
+  CVector2.cpp
+  CVector3.cpp
+  Mesh.cpp
+P:\StrangeEngineMK2\StrangeEngineMK2\External\assimp\include\assimp\material.inl(106,21): error C2589: '(': illegal token on right side of '::'
+P:\StrangeEngineMK2\StrangeEngineMK2\External\assimp\include\assimp\material.inl(106,21): message : This diagnostic occurred in the compiler generated function 'aiReturn aiMaterial::Get(const char *,unsigned int,unsigned int,Type *,unsigned int *) const'
+P:\StrangeEngineMK2\StrangeEngineMK2\Mesh.cpp(324,23): warning C4018: '<': signed/unsigned mismatch
+  Model.cpp
+P:\StrangeEngineMK2\StrangeEngineMK2\Model.cpp(101,1): fatal error C1010: unexpected end of file while looking for precompiled header. Did you forget to add '#include "pch.h"' to your source?
+  Scene.cpp
+P:\StrangeEngineMK2\StrangeEngineMK2\External\assimp\include\assimp\material.inl(106,21): error C2589: '(': illegal token on right side of '::'
+P:\StrangeEngineMK2\StrangeEngineMK2\External\assimp\include\assimp\material.inl(106,21): message : This diagnostic occurred in the compiler generated function 'aiReturn aiMaterial::Get(const char *,unsigned int,unsigned int,Type *,unsigned int *) const'
+P:\StrangeEngineMK2\StrangeEngineMK2\Texture.h(5,21): warning C4099: 'ID3D11Resource': type name first seen using 'struct' now seen using 'class'
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(2210): message : see declaration of 'ID3D11Resource'
+P:\StrangeEngineMK2\StrangeEngineMK2\Texture.h(6,31): warning C4099: 'ID3D11ShaderResourceView': type name first seen using 'struct' now seen using 'class'
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(3618): message : see declaration of 'ID3D11ShaderResourceView'
+P:\StrangeEngineMK2\StrangeEngineMK2\Scene.cpp(393,23): warning C4018: '<': signed/unsigned mismatch
+P:\StrangeEngineMK2\StrangeEngineMK2\Scene.cpp(403,23): warning C4018: '<': signed/unsigned mismatch
+P:\StrangeEngineMK2\StrangeEngineMK2\Scene.cpp(411,23): warning C4018: '<': signed/unsigned mismatch
+P:\StrangeEngineMK2\StrangeEngineMK2\Scene.cpp(452,23): warning C4018: '<': signed/unsigned mismatch
+P:\StrangeEngineMK2\StrangeEngineMK2\Scene.cpp(454,27): warning C4018: '<': signed/unsigned mismatch
+P:\StrangeEngineMK2\StrangeEngineMK2\Scene.cpp(477,23): warning C4018: '<': signed/unsigned mismatch
+P:\StrangeEngineMK2\StrangeEngineMK2\Scene.cpp(494,23): warning C4018: '<': signed/unsigned mismatch
+  Shader.cpp
+P:\StrangeEngineMK2\StrangeEngineMK2\Shader.cpp(91,32): warning C4244: 'argument': conversion from 'std::streamoff' to 'const unsigned int', possible loss of data
+P:\StrangeEngineMK2\StrangeEngineMK2\Shader.cpp(125,31): warning C4244: 'argument': conversion from 'std::streamoff' to 'const unsigned int', possible loss of data
+  State.cpp
+  Texture.cpp
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(77,48): warning C4099: 'ID3D11Resource': type name first seen using 'class' now seen using 'struct'
+P:\StrangeEngineMK2\StrangeEngineMK2\Texture.h(5): message : see declaration of 'ID3D11Resource'
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(119,68): warning C4099: 'ID3D11ShaderResourceView': type name first seen using 'class' now seen using 'struct'
+P:\StrangeEngineMK2\StrangeEngineMK2\Texture.h(6): message : see declaration of 'ID3D11ShaderResourceView'
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(2210,20): warning C4099: 'ID3D11Resource': type name first seen using 'class' now seen using 'struct'
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(2210): message : see declaration of 'ID3D11Resource'
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(3618,30): warning C4099: 'ID3D11ShaderResourceView': type name first seen using 'class' now seen using 'struct'
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(3618): message : see declaration of 'ID3D11ShaderResourceView'
+  GraphicsHelpers.cpp
+  Input.cpp
+  Timer.cpp
+P:\StrangeEngineMK2\StrangeEngineMK2\Utility\Timer.cpp(43,20): error C3861: 'timeGetTime': identifier not found
+P:\StrangeEngineMK2\StrangeEngineMK2\Utility\Timer.cpp(63,17): error C3861: 'timeGetTime': identifier not found
+P:\StrangeEngineMK2\StrangeEngineMK2\Utility\Timer.cpp(80,18): error C3861: 'timeGetTime': identifier not found
+P:\StrangeEngineMK2\StrangeEngineMK2\Utility\Timer.cpp(128,20): error C3861: 'timeGetTime': identifier not found
+P:\StrangeEngineMK2\StrangeEngineMK2\Utility\Timer.cpp(166,20): error C3861: 'timeGetTime': identifier not found
+  Generating Code...
