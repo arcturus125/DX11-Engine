@@ -1,6 +1,6 @@
 ﻿  StrangeEngine_Runnable.cpp
-P:\StrangeEngineMK2\StrangeEngineMK2\Texture.h(5,21): warning C4099: 'ID3D11Resource': type name first seen using 'struct' now seen using 'class'
+C:\StrangeEngine\StrangeEngineMK2\Texture.h(5,21): warning C4099: 'ID3D11Resource': type name first seen using 'struct' now seen using 'class'
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(2210): message : see declaration of 'ID3D11Resource'
-P:\StrangeEngineMK2\StrangeEngineMK2\Texture.h(6,31): warning C4099: 'ID3D11ShaderResourceView': type name first seen using 'struct' now seen using 'class'
+C:\StrangeEngine\StrangeEngineMK2\Texture.h(6,31): warning C4099: 'ID3D11ShaderResourceView': type name first seen using 'struct' now seen using 'class'
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(3618): message : see declaration of 'ID3D11ShaderResourceView'
-  StrangeEngine_Runnable.vcxproj -> P:\StrangeEngineMK2\x64\Debug\StrangeEngine_Runnable.exe
+  StrangeEngine_Runnable.vcxproj -> C:\StrangeEngine\x64\Debug\StrangeEngine_Runnable.exe

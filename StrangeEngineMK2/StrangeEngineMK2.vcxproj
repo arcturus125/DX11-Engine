@@ -103,6 +103,7 @@ xcopy /y /d "$(ProjectDir)External\assimp\lib\$(Platform)\$(Configuration)\zlibd
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="Direct3DSetup.h" />
+    <ClInclude Include="Engine.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Math\CMatrix4x4.h" />
@@ -126,7 +127,7 @@ xcopy /y /d "$(ProjectDir)External\assimp\lib\$(Platform)\$(Configuration)\zlibd
     <ClCompile Include="Direct3DSetup.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Light.cpp" />
-    <ClCompile Include="Engine.hpp" />
+    <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Math\CMatrix4x4.cpp" />
     <ClCompile Include="Math\CVector2.cpp" />
     <ClCompile Include="Math\CVector3.cpp" />
