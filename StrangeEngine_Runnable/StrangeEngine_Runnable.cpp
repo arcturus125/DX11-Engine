@@ -14,7 +14,6 @@ int main()
 
     // scene setup here
 
-    // while engine.isRunning
 
     // scene updates here
 }

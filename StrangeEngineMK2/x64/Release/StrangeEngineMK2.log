@@ -1,48 +1,5 @@
-﻿  pch.cpp
-  Camera.cpp
-  Direct3DSetup.cpp
-  dllmain.cpp
-  Light.cpp
-P:\StrangeEngineMK2\StrangeEngineMK2\Texture.h(5,21): warning C4099: 'ID3D11Resource': type name first seen using 'struct' now seen using 'class'
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(2210): message : see declaration of 'ID3D11Resource'
-P:\StrangeEngineMK2\StrangeEngineMK2\Texture.h(6,31): warning C4099: 'ID3D11ShaderResourceView': type name first seen using 'struct' now seen using 'class'
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(3618): message : see declaration of 'ID3D11ShaderResourceView'
-  Main.cpp
-P:\StrangeEngineMK2\StrangeEngineMK2\Texture.h(5,21): warning C4099: 'ID3D11Resource': type name first seen using 'struct' now seen using 'class'
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(2210): message : see declaration of 'ID3D11Resource'
-P:\StrangeEngineMK2\StrangeEngineMK2\Texture.h(6,31): warning C4099: 'ID3D11ShaderResourceView': type name first seen using 'struct' now seen using 'class'
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(3618): message : see declaration of 'ID3D11ShaderResourceView'
-  CMatrix4x4.cpp
-  CVector2.cpp
-  CVector3.cpp
-  Mesh.cpp
-  Model.cpp
-P:\StrangeEngineMK2\StrangeEngineMK2\Texture.h(5,21): warning C4099: 'ID3D11Resource': type name first seen using 'struct' now seen using 'class'
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(2210): message : see declaration of 'ID3D11Resource'
-P:\StrangeEngineMK2\StrangeEngineMK2\Texture.h(6,31): warning C4099: 'ID3D11ShaderResourceView': type name first seen using 'struct' now seen using 'class'
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(3618): message : see declaration of 'ID3D11ShaderResourceView'
-  Scene.cpp
-P:\StrangeEngineMK2\StrangeEngineMK2\Texture.h(5,21): warning C4099: 'ID3D11Resource': type name first seen using 'struct' now seen using 'class'
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(2210): message : see declaration of 'ID3D11Resource'
-P:\StrangeEngineMK2\StrangeEngineMK2\Texture.h(6,31): warning C4099: 'ID3D11ShaderResourceView': type name first seen using 'struct' now seen using 'class'
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(3618): message : see declaration of 'ID3D11ShaderResourceView'
-  Shader.cpp
-  State.cpp
-  Texture.cpp
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(77,48): warning C4099: 'ID3D11Resource': type name first seen using 'class' now seen using 'struct'
-P:\StrangeEngineMK2\StrangeEngineMK2\Texture.h(5): message : see declaration of 'ID3D11Resource'
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(119,68): warning C4099: 'ID3D11ShaderResourceView': type name first seen using 'class' now seen using 'struct'
-P:\StrangeEngineMK2\StrangeEngineMK2\Texture.h(6): message : see declaration of 'ID3D11ShaderResourceView'
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(2210,20): warning C4099: 'ID3D11Resource': type name first seen using 'class' now seen using 'struct'
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(2210): message : see declaration of 'ID3D11Resource'
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(3618,30): warning C4099: 'ID3D11ShaderResourceView': type name first seen using 'class' now seen using 'struct'
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(3618): message : see declaration of 'ID3D11ShaderResourceView'
-  GraphicsHelpers.cpp
-  Input.cpp
-  Timer.cpp
-     Creating library P:\StrangeEngineMK2\x64\Release\StrangeEngineMK2.lib and object P:\StrangeEngineMK2\x64\Release\StrangeEngineMK2.exp
-  Generating code
-  Previous IPDB not found, fall back to full compilation.
-  All 1027 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
-  Finished generating code
-  StrangeEngineMK2.vcxproj -> P:\StrangeEngineMK2\x64\Release\StrangeEngineMK2.dll
+﻿  StrangeEngineMK2.vcxproj -> C:\StrangeEngine\x64\Release\StrangeEngineMK2.dll
+  C:\StrangeEngine\StrangeEngineMK2\External\assimp\lib\x64\Release\assimp-vc142-mt.dll
+  1 File(s) copied
+  C:\StrangeEngine\StrangeEngineMK2\External\assimp\lib\x64\Release\zlib.dll
+  1 File(s) copied
