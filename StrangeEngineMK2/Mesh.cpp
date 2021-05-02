@@ -25,231 +25,242 @@
 // Will throw a std::runtime_error exception on failure (since constructors can't return errors).
 Mesh::Mesh(const std::string& fileName, bool requireTangents /*= false*/)
 {
-    Assimp::Importer importer;
-
-    // Flags for processing the mesh. Assimp provides a huge amount of control - right click any of these
-    // and "Peek Definition" to see documention above each constant
-    unsigned int assimpFlags = aiProcess_MakeLeftHanded |
-                               aiProcess_GenSmoothNormals |
-                               aiProcess_FixInfacingNormals |
-                               aiProcess_GenUVCoords | 
-                               aiProcess_TransformUVCoords |
-                               aiProcess_FlipUVs |
-                               aiProcess_FlipWindingOrder |
-                               aiProcess_Triangulate |
-                               aiProcess_JoinIdenticalVertices |
-                               aiProcess_ImproveCacheLocality |
-                               aiProcess_SortByPType |
-                               aiProcess_FindInvalidData | 
-                               aiProcess_OptimizeMeshes |
-                               aiProcess_FindInstances |
-                               aiProcess_FindDegenerates |
-                               aiProcess_RemoveRedundantMaterials |
-                               aiProcess_Debone |
-                               aiProcess_RemoveComponent;
-
-    // Flags to specify what mesh data to ignore
-    int removeComponents = aiComponent_LIGHTS | aiComponent_CAMERAS | aiComponent_TEXTURES | aiComponent_COLORS | 
-                           aiComponent_BONEWEIGHTS | aiComponent_ANIMATIONS | aiComponent_MATERIALS;
-
-    // Add / remove tangents as required by user
-    if (requireTangents)
+    for (int i = 0; i < mediaPaths.size(); i++)
     {
-        assimpFlags |= aiProcess_CalcTangentSpace;
-    }
-    else
-    {
-        removeComponents |= aiComponent_TANGENTS_AND_BITANGENTS;
-    }
+        Assimp::Importer importer;
 
-    // Other miscellaneous settings
-    importer.SetPropertyFloat(AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE, 80.0f); // Smoothing angle for normals
-    importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_POINT | aiPrimitiveType_LINE);  // Remove points and lines (keep triangles only)
-    importer.SetPropertyBool(AI_CONFIG_PP_FD_REMOVE, true);                 // Remove degenerate triangles
-    importer.SetPropertyBool(AI_CONFIG_PP_DB_ALL_OR_NONE, true);            // Default to removing bones/weights from meshes that don't need skinning
-  
-    importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, removeComponents);
+        // Flags for processing the mesh. Assimp provides a huge amount of control - right click any of these
+        // and "Peek Definition" to see documention above each constant
+        unsigned int assimpFlags = aiProcess_MakeLeftHanded |
+            aiProcess_GenSmoothNormals |
+            aiProcess_FixInfacingNormals |
+            aiProcess_GenUVCoords |
+            aiProcess_TransformUVCoords |
+            aiProcess_FlipUVs |
+            aiProcess_FlipWindingOrder |
+            aiProcess_Triangulate |
+            aiProcess_JoinIdenticalVertices |
+            aiProcess_ImproveCacheLocality |
+            aiProcess_SortByPType |
+            aiProcess_FindInvalidData |
+            aiProcess_OptimizeMeshes |
+            aiProcess_FindInstances |
+            aiProcess_FindDegenerates |
+            aiProcess_RemoveRedundantMaterials |
+            aiProcess_Debone |
+            aiProcess_RemoveComponent;
 
-    // Import mesh with assimp given above requirements - log output
-    Assimp::DefaultLogger::create("", Assimp::DefaultLogger::VERBOSE);
-    const aiScene* scene = importer.ReadFile(fileName, assimpFlags);
-    Assimp::DefaultLogger::kill();
-    if (scene == nullptr)  throw std::runtime_error("Error loading mesh (" + fileName + "). " + importer.GetErrorString());
-    if (scene->mNumMeshes == 0)  throw std::runtime_error("No usable geometry in mesh: " + fileName);
+        // Flags to specify what mesh data to ignore
+        int removeComponents = aiComponent_LIGHTS | aiComponent_CAMERAS | aiComponent_TEXTURES | aiComponent_COLORS |
+            aiComponent_BONEWEIGHTS | aiComponent_ANIMATIONS | aiComponent_MATERIALS;
 
-
-    //-----------------------------------
-
-    //******************************************//
-    // Read geometry - multiple parts supported //
-
-    // A mesh is made of sub-meshes, each one can have a different material (texture)
-    // Import each sub-mesh in the file to seperate index / vertex buffer (could share buffers between sub-meshes but that would make things more complex)
-    mSubMeshes.resize(scene->mNumMeshes);
-    for (unsigned int m = 0; m < scene->mNumMeshes; ++m)
-    {
-        aiMesh* assimpMesh = scene->mMeshes[m];
-        std::string subMeshName = assimpMesh->mName.C_Str();
-        auto& subMesh = mSubMeshes[m]; // Short name for the submesh we're currently preparing - makes code below more readable
-
-    
-        //-----------------------------------
-
-        // Check for presence of position and normal data. Tangents and UVs are optional.
-        std::vector<D3D11_INPUT_ELEMENT_DESC> vertexElements;
-        unsigned int offset = 0;
-    
-        if (!assimpMesh->HasPositions())  throw std::runtime_error("No position data for sub-mesh " + subMeshName + " in " + fileName);
-        unsigned int positionOffset = offset;
-        vertexElements.push_back( { "Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, positionOffset, D3D11_INPUT_PER_VERTEX_DATA, 0 } );
-        offset += 12;
-
-        if (!assimpMesh->HasNormals())  throw std::runtime_error("No normal data for sub-mesh " + subMeshName + " in " + fileName);
-        unsigned int normalOffset = offset;
-        vertexElements.push_back( { "Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, normalOffset, D3D11_INPUT_PER_VERTEX_DATA, 0 } );
-        offset += 12;
-
-        unsigned int tangentOffset = offset;
+        // Add / remove tangents as required by user
         if (requireTangents)
         {
-            if (!assimpMesh->HasTangentsAndBitangents())  throw std::runtime_error("No tangent data for sub-mesh " + subMeshName + " in " + fileName);
-            vertexElements.push_back( { "Tangent", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, tangentOffset, D3D11_INPUT_PER_VERTEX_DATA, 0 } );
+            assimpFlags |= aiProcess_CalcTangentSpace;
+        }
+        else
+        {
+            removeComponents |= aiComponent_TANGENTS_AND_BITANGENTS;
+        }
+
+        // Other miscellaneous settings
+        importer.SetPropertyFloat(AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE, 80.0f); // Smoothing angle for normals
+        importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_POINT | aiPrimitiveType_LINE);  // Remove points and lines (keep triangles only)
+        importer.SetPropertyBool(AI_CONFIG_PP_FD_REMOVE, true);                 // Remove degenerate triangles
+        importer.SetPropertyBool(AI_CONFIG_PP_DB_ALL_OR_NONE, true);            // Default to removing bones/weights from meshes that don't need skinning
+
+        importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, removeComponents);
+
+        // Import mesh with assimp given above requirements - log output
+        Assimp::DefaultLogger::create("", Assimp::DefaultLogger::VERBOSE);
+        const aiScene* scene = importer.ReadFile(mediaPaths[i] + fileName, assimpFlags);
+        Assimp::DefaultLogger::kill();
+    
+        // if the file is not found
+        if (scene == nullptr)
+        {
+            if (i < mediaPaths.size() - 1)
+                continue;
+            else
+                throw std::runtime_error("Error loading mesh (" + fileName + "). " + importer.GetErrorString());
+        }
+        if (scene->mNumMeshes == 0)  throw std::runtime_error("No usable geometry in mesh: " + fileName);
+
+
+        //-----------------------------------
+
+        //******************************************//
+        // Read geometry - multiple parts supported //
+
+        // A mesh is made of sub-meshes, each one can have a different material (texture)
+        // Import each sub-mesh in the file to seperate index / vertex buffer (could share buffers between sub-meshes but that would make things more complex)
+        mSubMeshes.resize(scene->mNumMeshes);
+        for (unsigned int m = 0; m < scene->mNumMeshes; ++m)
+        {
+            aiMesh* assimpMesh = scene->mMeshes[m];
+            std::string subMeshName = assimpMesh->mName.C_Str();
+            auto& subMesh = mSubMeshes[m]; // Short name for the submesh we're currently preparing - makes code below more readable
+
+
+            //-----------------------------------
+
+            // Check for presence of position and normal data. Tangents and UVs are optional.
+            std::vector<D3D11_INPUT_ELEMENT_DESC> vertexElements;
+            unsigned int offset = 0;
+
+            if (!assimpMesh->HasPositions())  throw std::runtime_error("No position data for sub-mesh " + subMeshName + " in " + fileName);
+            unsigned int positionOffset = offset;
+            vertexElements.push_back({ "Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, positionOffset, D3D11_INPUT_PER_VERTEX_DATA, 0 });
             offset += 12;
-        }
-    
-        unsigned int uvOffset = offset;
-        if (assimpMesh->GetNumUVChannels() > 0 && assimpMesh->HasTextureCoords(0))
-        {
-            if (assimpMesh->mNumUVComponents[0] != 2)  throw std::runtime_error("Unsupported texture coordinates in " + subMeshName + " in " + fileName);
-            vertexElements.push_back( { "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, uvOffset, D3D11_INPUT_PER_VERTEX_DATA, 0 } );
-            offset += 8;
-        }
 
-        subMesh.vertexSize = offset;
+            if (!assimpMesh->HasNormals())  throw std::runtime_error("No normal data for sub-mesh " + subMeshName + " in " + fileName);
+            unsigned int normalOffset = offset;
+            vertexElements.push_back({ "Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, normalOffset, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+            offset += 12;
 
-
-        // Create a "vertex layout" to describe to DirectX what is data in each vertex of this mesh
-        auto shaderSignature = CreateSignatureForVertexLayout(vertexElements.data(), static_cast<int>(vertexElements.size()));
-        HRESULT hr = gD3DDevice->CreateInputLayout(vertexElements.data(), static_cast<UINT>(vertexElements.size()),
-                                                   shaderSignature->GetBufferPointer(), shaderSignature->GetBufferSize(),
-                                                   &subMesh.vertexLayout);
-        if (shaderSignature)  shaderSignature->Release();
-        if (FAILED(hr))  throw std::runtime_error("Failure creating input layout for " + fileName);
-
-
-
-        //-----------------------------------
-
-        // Create CPU-side buffers to hold current mesh data - exact content is flexible so can't use a structure for a vertex - so just a block of bytes
-        // Note: for large arrays a unique_ptr is better than a vector because vectors default-initialise all the values which is a waste of time.
-        subMesh.numVertices = assimpMesh->mNumVertices;
-        subMesh.numIndices  = assimpMesh->mNumFaces * 3;
-        auto vertices = std::make_unique<unsigned char[]>(subMesh.numVertices * subMesh.vertexSize);
-        auto indices  = std::make_unique<unsigned char[]>(subMesh.numIndices * 4); // Using 32 bit indexes (4 bytes) for each indeex
-
-
-        //-----------------------------------
-
-        // Copy mesh data from assimp to our CPU-side vertex buffer
-
-        CVector3* assimpPosition = reinterpret_cast<CVector3*>(assimpMesh->mVertices);
-        unsigned char* position = vertices.get() + positionOffset;
-        unsigned char* positionEnd = position + subMesh.numVertices * subMesh.vertexSize;
-        while (position != positionEnd)
-        {
-            *(CVector3*)position = *assimpPosition;
-            position += subMesh.vertexSize;
-            ++assimpPosition;
-        }
-
-        CVector3* assimpNormal = reinterpret_cast<CVector3*>(assimpMesh->mNormals);
-        unsigned char* normal = vertices.get() + normalOffset;
-        unsigned char* normalEnd = normal + subMesh.numVertices * subMesh.vertexSize;
-        while (normal != normalEnd)
-        {
-            *(CVector3*)normal = *assimpNormal;
-            normal += subMesh.vertexSize;
-            ++assimpNormal;
-        }
-
-        if (requireTangents)
-        {
-          CVector3* assimpTangent = reinterpret_cast<CVector3*>(assimpMesh->mTangents);
-          unsigned char* tangent =  vertices.get() + tangentOffset;
-          unsigned char* tangentEnd = tangent + subMesh.numVertices * subMesh.vertexSize;
-          while (tangent != tangentEnd)
-          {
-            *(CVector3*)tangent = *assimpTangent;
-            tangent += subMesh.vertexSize;
-            ++assimpTangent;
-          }
-        }
-
-        if (assimpMesh->GetNumUVChannels() > 0 && assimpMesh->HasTextureCoords(0))
-        {
-            aiVector3D* assimpUV = assimpMesh->mTextureCoords[0];
-            unsigned char* uv = vertices.get() + uvOffset;
-            unsigned char* uvEnd = uv + subMesh.numVertices * subMesh.vertexSize;
-            while (uv != uvEnd)
+            unsigned int tangentOffset = offset;
+            if (requireTangents)
             {
-                *(CVector2*)uv = CVector2(assimpUV->x, assimpUV->y);
-                uv += subMesh.vertexSize;
-                ++assimpUV;
+                if (!assimpMesh->HasTangentsAndBitangents())  throw std::runtime_error("No tangent data for sub-mesh " + subMeshName + " in " + fileName);
+                vertexElements.push_back({ "Tangent", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, tangentOffset, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+                offset += 12;
             }
+
+            unsigned int uvOffset = offset;
+            if (assimpMesh->GetNumUVChannels() > 0 && assimpMesh->HasTextureCoords(0))
+            {
+                if (assimpMesh->mNumUVComponents[0] != 2)  throw std::runtime_error("Unsupported texture coordinates in " + subMeshName + " in " + fileName);
+                vertexElements.push_back({ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, uvOffset, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+                offset += 8;
+            }
+
+            subMesh.vertexSize = offset;
+
+
+            // Create a "vertex layout" to describe to DirectX what is data in each vertex of this mesh
+            auto shaderSignature = CreateSignatureForVertexLayout(vertexElements.data(), static_cast<int>(vertexElements.size()));
+            HRESULT hr = gD3DDevice->CreateInputLayout(vertexElements.data(), static_cast<UINT>(vertexElements.size()),
+                shaderSignature->GetBufferPointer(), shaderSignature->GetBufferSize(),
+                &subMesh.vertexLayout);
+            if (shaderSignature)  shaderSignature->Release();
+            if (FAILED(hr))  throw std::runtime_error("Failure creating input layout for " + fileName);
+
+
+
+            //-----------------------------------
+
+            // Create CPU-side buffers to hold current mesh data - exact content is flexible so can't use a structure for a vertex - so just a block of bytes
+            // Note: for large arrays a unique_ptr is better than a vector because vectors default-initialise all the values which is a waste of time.
+            subMesh.numVertices = assimpMesh->mNumVertices;
+            subMesh.numIndices = assimpMesh->mNumFaces * 3;
+            auto vertices = std::make_unique<unsigned char[]>(subMesh.numVertices * subMesh.vertexSize);
+            auto indices = std::make_unique<unsigned char[]>(subMesh.numIndices * 4); // Using 32 bit indexes (4 bytes) for each indeex
+
+
+            //-----------------------------------
+
+            // Copy mesh data from assimp to our CPU-side vertex buffer
+
+            CVector3* assimpPosition = reinterpret_cast<CVector3*>(assimpMesh->mVertices);
+            unsigned char* position = vertices.get() + positionOffset;
+            unsigned char* positionEnd = position + subMesh.numVertices * subMesh.vertexSize;
+            while (position != positionEnd)
+            {
+                *(CVector3*)position = *assimpPosition;
+                position += subMesh.vertexSize;
+                ++assimpPosition;
+            }
+
+            CVector3* assimpNormal = reinterpret_cast<CVector3*>(assimpMesh->mNormals);
+            unsigned char* normal = vertices.get() + normalOffset;
+            unsigned char* normalEnd = normal + subMesh.numVertices * subMesh.vertexSize;
+            while (normal != normalEnd)
+            {
+                *(CVector3*)normal = *assimpNormal;
+                normal += subMesh.vertexSize;
+                ++assimpNormal;
+            }
+
+            if (requireTangents)
+            {
+                CVector3* assimpTangent = reinterpret_cast<CVector3*>(assimpMesh->mTangents);
+                unsigned char* tangent = vertices.get() + tangentOffset;
+                unsigned char* tangentEnd = tangent + subMesh.numVertices * subMesh.vertexSize;
+                while (tangent != tangentEnd)
+                {
+                    *(CVector3*)tangent = *assimpTangent;
+                    tangent += subMesh.vertexSize;
+                    ++assimpTangent;
+                }
+            }
+
+            if (assimpMesh->GetNumUVChannels() > 0 && assimpMesh->HasTextureCoords(0))
+            {
+                aiVector3D* assimpUV = assimpMesh->mTextureCoords[0];
+                unsigned char* uv = vertices.get() + uvOffset;
+                unsigned char* uvEnd = uv + subMesh.numVertices * subMesh.vertexSize;
+                while (uv != uvEnd)
+                {
+                    *(CVector2*)uv = CVector2(assimpUV->x, assimpUV->y);
+                    uv += subMesh.vertexSize;
+                    ++assimpUV;
+                }
+            }
+
+
+            //-----------------------------------
+
+            // Copy face data from assimp to our CPU-side index buffer
+            if (!assimpMesh->HasFaces())  throw std::runtime_error("No face data in " + subMeshName + " in " + fileName);
+
+            DWORD* index = reinterpret_cast<DWORD*>(indices.get());
+            for (unsigned int face = 0; face < assimpMesh->mNumFaces; ++face)
+            {
+                *index++ = assimpMesh->mFaces[face].mIndices[0];
+                *index++ = assimpMesh->mFaces[face].mIndices[1];
+                *index++ = assimpMesh->mFaces[face].mIndices[2];
+            }
+
+
+            //-----------------------------------
+
+            D3D11_BUFFER_DESC bufferDesc;
+            D3D11_SUBRESOURCE_DATA initData;
+
+            // Create GPU-side vertex buffer and copy the vertices imported by assimp into it
+            bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER; // Indicate it is a vertex buffer
+            bufferDesc.Usage = D3D11_USAGE_DEFAULT;          // Default usage for this buffer - we'll see other usages later
+            bufferDesc.ByteWidth = subMesh.numVertices * subMesh.vertexSize; // Size of the buffer in bytes
+            bufferDesc.CPUAccessFlags = 0;
+            bufferDesc.MiscFlags = 0;
+            initData.pSysMem = vertices.get(); // Fill the new vertex buffer with data loaded by assimp
+
+            hr = gD3DDevice->CreateBuffer(&bufferDesc, &initData, &subMesh.vertexBuffer);
+            if (FAILED(hr))  throw std::runtime_error("Failure creating vertex buffer for " + fileName);
+
+
+            // Create GPU-side index buffer and copy the vertices imported by assimp into it
+            bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER; // Indicate it is an index buffer
+            bufferDesc.Usage = D3D11_USAGE_DEFAULT;         // Default usage for this buffer - we'll see other usages later
+            bufferDesc.ByteWidth = subMesh.numIndices * sizeof(DWORD); // Size of the buffer in bytes
+            bufferDesc.CPUAccessFlags = 0;
+            bufferDesc.MiscFlags = 0;
+            initData.pSysMem = indices.get(); // Fill the new index buffer with data loaded by assimp
+
+            hr = gD3DDevice->CreateBuffer(&bufferDesc, &initData, &subMesh.indexBuffer);
+            if (FAILED(hr))  throw std::runtime_error("Failure creating index buffer for " + fileName);
         }
 
 
-        //-----------------------------------
 
-        // Copy face data from assimp to our CPU-side index buffer
-        if (!assimpMesh->HasFaces())  throw std::runtime_error("No face data in " + subMeshName + " in " + fileName);
+        //*********************************************************************//
+        // Read node hierachy - each node has a matrix and contains sub-meshes //
 
-        DWORD* index = reinterpret_cast<DWORD*>(indices.get());
-        for (unsigned int face = 0; face < assimpMesh->mNumFaces; ++face)
-        {
-            *index++ = assimpMesh->mFaces[face].mIndices[0];
-            *index++ = assimpMesh->mFaces[face].mIndices[1];
-            *index++ = assimpMesh->mFaces[face].mIndices[2];
-        }
-
-
-        //-----------------------------------
-
-        D3D11_BUFFER_DESC bufferDesc;
-        D3D11_SUBRESOURCE_DATA initData;
-
-        // Create GPU-side vertex buffer and copy the vertices imported by assimp into it
-        bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER; // Indicate it is a vertex buffer
-        bufferDesc.Usage = D3D11_USAGE_DEFAULT;          // Default usage for this buffer - we'll see other usages later
-        bufferDesc.ByteWidth = subMesh.numVertices * subMesh.vertexSize; // Size of the buffer in bytes
-        bufferDesc.CPUAccessFlags = 0;
-        bufferDesc.MiscFlags = 0;
-        initData.pSysMem = vertices.get(); // Fill the new vertex buffer with data loaded by assimp
-    
-        hr = gD3DDevice->CreateBuffer(&bufferDesc, &initData, &subMesh.vertexBuffer);
-        if (FAILED(hr))  throw std::runtime_error("Failure creating vertex buffer for " + fileName);
-
-
-        // Create GPU-side index buffer and copy the vertices imported by assimp into it
-        bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER; // Indicate it is an index buffer
-        bufferDesc.Usage = D3D11_USAGE_DEFAULT;         // Default usage for this buffer - we'll see other usages later
-        bufferDesc.ByteWidth = subMesh.numIndices * sizeof(DWORD); // Size of the buffer in bytes
-        bufferDesc.CPUAccessFlags = 0;
-        bufferDesc.MiscFlags = 0;
-        initData.pSysMem = indices.get(); // Fill the new index buffer with data loaded by assimp
-
-        hr = gD3DDevice->CreateBuffer(&bufferDesc, &initData, &subMesh.indexBuffer);
-        if (FAILED(hr))  throw std::runtime_error("Failure creating index buffer for " + fileName);
+        // Uses recursive helper functions to build node hierarchy    
+        mNodes.resize(CountNodes(scene->mRootNode));
+        ReadNodes(scene->mRootNode, 0, 0);
     }
-
-
-
-    //*********************************************************************//
-    // Read node hierachy - each node has a matrix and contains sub-meshes //
-
-    // Uses recursive helper functions to build node hierarchy    
-    mNodes.resize(CountNodes(scene->mRootNode));
-    ReadNodes(scene->mRootNode, 0, 0);
 }
 
 

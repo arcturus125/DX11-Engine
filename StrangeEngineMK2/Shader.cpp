@@ -27,38 +27,49 @@ bool Shader::LoadShaders(std::string shaderfileName, bool loadPixelShader, bool 
 {
     if (loadPixelShader)
     {
-        std::string ps_path = shaderfileName + "_ps";
-        pixelShader = LoadPixelShader(ps_path); 
+        std::string ps_path = shaderfileName + "_ps"; // all pixel shaders should have "_ps" at the end of their filename, this autofills it for you
+
+        for (int i = 0; i < shaderPaths.size(); i++) // loop through all the media folders
+        {
+            pixelShader = LoadPixelShader(shaderPaths[i] + ps_path); // attempt to load the pixel shader
+            if (pixelShader != nullptr) break; // if a pixel shader is found, break the loop
+        }
+
+        // after looping through all the media folders, if no shader is found, return an error
         if (pixelShader == nullptr)
         {
             gLastError = " Error loading Pixel Shader: " + ps_path;
             return false;
         }
     }
+    // if no pixel shader is to be loaded, load the default pixel shader
     else
-    {
-        pixelShader = LoadPixelShader("PixelLighting_ps");
-    }
+        pixelShader = LoadPixelShader("C:\\StrangeEngine\\Debug\\PixelLighting_ps");
 
 
     if (loadVertexShader)
     {
-        std::string vs_path = shaderfileName + "_vs";
-        vertexShader = LoadVertexShader(vs_path); 
+        std::string vs_path = shaderfileName + "_vs"; // all vetrex shaders should have "_vs" at the end of their filename, this autofills it for you
+
+        for (int i = 0; i < shaderPaths.size(); i++) // loop through all the media folders
+        {
+            vertexShader = LoadVertexShader(shaderPaths[i] + vs_path);
+            if (pixelShader != nullptr) break; // if a vetrex shader is found, break the loop
+        }
+
+        // after looping through all the media folders, if no shader is found, return an error
         if (vertexShader == nullptr)
         {
             gLastError = " Error loading Vertex Shader: " + vs_path;
             return false;
         }
     }
+    // if no vertex shader is to be loaded, load the default vertex shader
     else
-    {
-        vertexShader = LoadVertexShader("PixelLighting_vs");
-    }
+        vertexShader = LoadVertexShader("C:\\StrangeEngine\\Debug\\PixelLighting_vs");
 
-    
-    
 
+    // if both shaders are loaded without issue, return true
     return true;
 }
 

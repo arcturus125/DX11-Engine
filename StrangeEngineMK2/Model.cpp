@@ -17,12 +17,15 @@
 Model::Model(Mesh* mesh, CVector3 position /*= { 0,0,0 }*/, CVector3 rotation /*= { 0,0,0 }*/, float scale /*= 1*/)
     : mMesh(mesh)
 {
-    // Set default matrices from mesh
-    mWorldMatrices.resize(mesh->NumberNodes());
-    for (int i = 0; i < mWorldMatrices.size(); ++i)
-        mWorldMatrices[i] = mesh->GetNodeDefaultMatrix(i);
-	RendererPass temp;
-	renderPass.push_back(temp);
+	
+		// Set default matrices from mesh
+		mWorldMatrices.resize(mesh->NumberNodes());
+		for (int i = 0; i < mWorldMatrices.size(); ++i)
+			mWorldMatrices[i] = mesh->GetNodeDefaultMatrix(i);
+		// create the default pass of the renderer for the object
+		RendererPass temp;
+		renderPass.push_back(temp);
+	
 }
 
 

@@ -5,7 +5,11 @@ int main()
 {
     std::cout << "Hello World!\n";
 
-    // create engine
+    // set tehe default media folder
+    AddShaderFolder("C:\\StrangeEngine\\Debug\\"); // path to the compiled shaders
+    AddMediaFolder("C:\\StrangeEngine\\Media\\"); // path to other media
+    
+    // create and run the engine
     StartEngine(GetModuleHandle(0));
 
     // scene setup here

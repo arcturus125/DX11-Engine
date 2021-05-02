@@ -12,6 +12,7 @@
 //#include "CVector3.h"
 #include "CMatrix4x4.h"
 #include "Light.h"
+#include <vector>
 
 
 //--------------------------------------------------------------------------------------
@@ -45,6 +46,9 @@ extern const float MOVEMENT_SPEED;
 // A global error message to help track down fatal errors - set it to a useful message
 // when a serious error occurs
 extern std::string gLastError;
+
+extern std::vector<std::string> shaderPaths;
+extern std::vector<std::string> mediaPaths;
 
 
 
