@@ -1,0 +1,2 @@
+﻿  StrangeEngine_Runnable.cpp
+P:\StrangeEngineMK2\StrangeEngineMK2\common.h(13,10): fatal error C1083: Cannot open include file: 'CMatrix4x4.h': No such file or directory
