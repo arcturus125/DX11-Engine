@@ -1,0 +1,16 @@
+﻿  StrangeEngine_BlankProject.cpp
+C:\StrangeEngine\StrangeEngineMK2\Texture.h(5,21): warning C4099: 'ID3D11Resource': type name first seen using 'struct' now seen using 'class'
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(2210): message : see declaration of 'ID3D11Resource'
+C:\StrangeEngine\StrangeEngineMK2\Texture.h(6,31): warning C4099: 'ID3D11ShaderResourceView': type name first seen using 'struct' now seen using 'class'
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(3618): message : see declaration of 'ID3D11ShaderResourceView'
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 77 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  StrangeEngine_BlankProject.vcxproj -> C:\StrangeEngine\Template\StrangeEngine_BlankProject\x64\Release\StrangeEngine_BlankProject.exe
+  C:\StrangeEngine\StrangeEngineMK2\x64\Release\StrangeEngineMK2.dll
+  1 File(s) copied
+  C:\StrangeEngine\StrangeEngineMK2\x64\Release\assimp-vc142-mt.dll
+  1 File(s) copied
+  C:\StrangeEngine\StrangeEngineMK2\x64\Release\zlib.dll
+  1 File(s) copied

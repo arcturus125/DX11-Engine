@@ -20,4 +20,4 @@ __declspec(dllexport) LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 __declspec(dllexport) void AddShaderFolder(std::string path);
 __declspec(dllexport) void AddMediaFolder(std::string path);
 
-__declspec(dllexport) int StartEngine(_In_     HINSTANCE hInstance);
+__declspec(dllexport) int StartEngine(_In_     HINSTANCE hInstance, void (*start)(), void (*update)(float));

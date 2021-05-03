@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ProjectOutputs>
+    <ProjectOutput>
+      <FullPath>C:\StrangeEngine\StrangeEngineMK2\x64\Release\StrangeEngineMK2.dll</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\StrangeEngine\StrangeEngine_Runnable\x64\Release\StrangeEngine_Runnable.exe</FullPath>
+    </ProjectOutput>
+  </ProjectOutputs>
+  <ContentFiles>
+    <ContentFile>
+      <FullPath>C:\StrangeEngine\StrangeEngineMK2\x64\Release\AlphaBlending_ps.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\StrangeEngine\StrangeEngineMK2\x64\Release\BasicTransform_vs.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\StrangeEngine\StrangeEngineMK2\x64\Release\CellShadingOutline_ps.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\StrangeEngine\StrangeEngineMK2\x64\Release\CellShadingOutline_vs.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\StrangeEngine\StrangeEngineMK2\x64\Release\CellShading_ps.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\StrangeEngine\StrangeEngineMK2\x64\Release\CellShading_vs.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\StrangeEngine\StrangeEngineMK2\x64\Release\Fading_ps.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\StrangeEngine\StrangeEngineMK2\x64\Release\Fading_vs.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\StrangeEngine\StrangeEngineMK2\x64\Release\LightModel_ps.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\StrangeEngine\StrangeEngineMK2\x64\Release\NormalMapping_ps.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\StrangeEngine\StrangeEngineMK2\x64\Release\NormalMapping_vs.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\StrangeEngine\StrangeEngineMK2\x64\Release\ParallaxMapping_ps.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\StrangeEngine\StrangeEngineMK2\x64\Release\ParallaxMapping_vs.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\StrangeEngine\StrangeEngineMK2\x64\Release\PixelLighting_ps.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\StrangeEngine\StrangeEngineMK2\x64\Release\PixelLighting_vs.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\StrangeEngine\StrangeEngineMK2\x64\Release\Wiggle_ps.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\StrangeEngine\StrangeEngineMK2\x64\Release\Wiggle_vs.cso</FullPath>
+    </ContentFile>
+  </ContentFiles>
+  <SatelliteDlls />
+  <NonRecipeFileRefs />
+</Project>

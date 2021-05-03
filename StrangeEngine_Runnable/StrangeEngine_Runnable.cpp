@@ -1,21 +1,28 @@
 #include <iostream>
 #include "Engine.h" // <----including engine here
 
+void Start();
+void Update(float frametime);
+
 int main()
 {
     std::cout << "Hello World!\n";
 
-    // set tehe default media folder
+    // set the default media folder
     AddShaderFolder("C:\\StrangeEngine\\Debug\\"); // path to the compiled shaders
     AddMediaFolder("C:\\StrangeEngine\\Media\\"); // path to other media
     
     // create and run the engine
-    StartEngine(GetModuleHandle(0));
+    StartEngine(GetModuleHandle(0), Start, Update);
+}
 
-    // scene setup here
+void Start()
+{
+    std::cout << "Start!\n";
+}
 
-    // while engine.isRunning
-
-    // scene updates here
+void Update(float frametime)
+{
+    std::cout << "Update! " << frametime <<"\n";
 }
 
