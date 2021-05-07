@@ -28,7 +28,7 @@
 
 
 
-
+Camera* mainCamera;
 
 // Lock FPS to monitor refresh rate, which will typically set it to 60fps. Press 'p' to toggle to full fps
 bool lockFPS = true;
@@ -64,7 +64,6 @@ Model* gCrate;
 Model* gGround;
 Model* gTroll;
 
-Camera* gCamera;
 
 
 //--------------------------------------------------------------------------------------
@@ -372,13 +371,7 @@ bool InitScene() // start ()
     gLights[2]->model->SetRotation({ ToRadians(50.0f), ToRadians(-50.0f), 0.0f });
 
 
-    // #############################
-    //  create camera
-    // #############################
 
-    gCamera = new Camera();
-    gCamera->SetPosition({ 15, 30,-70 });
-    gCamera->SetRotation({ ToRadians(13), 0, 0 });
 
     return true;
 }
@@ -427,7 +420,6 @@ void ReleaseResources()
     delete gCrateMesh;     gCrateMesh     = nullptr;
     delete gTeapotMesh;  gTeapotMesh = nullptr;
 
-    delete gCamera;    gCamera = nullptr;
 }
 
 
@@ -483,11 +475,15 @@ void RenderSceneFromCamera(Camera* camera)
 
 
 
-// Rendering the scene
-void RenderScene()
+// Rewdndering the scene
+bool RenderScene()
 {
+    if (mainCamera == nullptr)
+    {
+        gLastError = "No main camera set, please remember to set your camera as the mainCamera with SetMainCamera(myCamera) at the start of the engine";
+        return false;
+    }
     //// set up gPerFrameConstants ready to be sent to the GPU
-
     int numOfPointLights = 0;
     int numOfSpotLights = 0;
     int numOfDirectionalLights = 0;
@@ -513,7 +509,7 @@ void RenderScene()
 
     gPerFrameConstants.ambientColour  = gAmbientColour;
     gPerFrameConstants.specularPower  = gSpecularPower;
-    gPerFrameConstants.cameraPosition = gCamera->Position();
+    gPerFrameConstants.cameraPosition = mainCamera->Position();
     gPerFrameConstants.parallaxDepth = (gUseParallax ? gParallaxDepth : 0);
     gPerFrameConstants.timer = wiggleTimer;
     gPerFrameConstants.outlineColour = OutlineColour;
@@ -545,7 +541,7 @@ void RenderScene()
     gD3DContext->RSSetViewports(1, &vp);
 
     // Render the scene from the main camera
-    RenderSceneFromCamera(gCamera);
+    RenderSceneFromCamera(mainCamera);
 
 
     //// Scene completion ////
@@ -553,6 +549,7 @@ void RenderScene()
     // When drawing to the off-screen back buffer is complete, we "present" the image to the front buffer (the screen)
     // Set first parameter to 1 to lock to vsync (typically 60fps)
     gSwapChain->Present(lockFPS ? 1 : 0, 0);
+    return true;
 }
 
 
@@ -580,7 +577,6 @@ void UpdateScene(float frameTime)
     if (KeyHit(Key_1))  go = !go;
 
 	// Control camera (will update its view matrix)
-	gCamera->Control(frameTime, Key_Up, Key_Down, Key_Left, Key_Right, Key_W, Key_S, Key_A, Key_D );
 
 
     // Toggle FPS limiting

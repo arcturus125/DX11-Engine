@@ -13,6 +13,7 @@
 #include "CMatrix4x4.h"
 #include "Light.h"
 #include <vector>
+#include "Camera.h"
 
 
 //--------------------------------------------------------------------------------------
@@ -49,6 +50,8 @@ extern std::string gLastError;
 
 extern std::vector<std::string> shaderPaths;
 extern std::vector<std::string> mediaPaths;
+
+extern Camera* mainCamera;
 
 
 

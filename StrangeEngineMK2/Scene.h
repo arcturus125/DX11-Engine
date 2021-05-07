@@ -49,7 +49,7 @@ __declspec(dllexport) void ReleaseResources();
 // Scene Render and Update
 //--------------------------------------------------------------------------------------
 
-__declspec(dllexport) void RenderScene();
+__declspec(dllexport) bool RenderScene();
 
 // frameTime is the time passed since the last frame
 __declspec(dllexport) void UpdateScene(float frameTime);
