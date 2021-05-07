@@ -55,7 +55,7 @@ public:
     // spot light attributes
     float SpotLight_ConeAngle = 90.0f;
 
-    Light(LightType pType,CVector3 pColour, float strength);
+    __declspec(dllexport) Light(LightType pType,CVector3 pColour, float strength);
 
     PointLightData GetPointLightData();
     SpotLightData GetSpotLightData();

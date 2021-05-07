@@ -82,8 +82,6 @@ ColourRGBA gBackgroundColor = { 0.2f, 0.2f, 0.3f, 1.0f };
 const float gLightOrbit = 20.0f;
 const float gLightOrbitSpeed = 0.7f;
 
-int strengthMultiplier = 1;
-int colourMultiplier = 1;
 
 
 //--------------------------------------------------------------------------------------
@@ -354,21 +352,6 @@ bool InitScene() // start ()
     gGround->addTexture(cobbleNormalMap);
 
 
-    // #############################
-    //  create Lights
-    // #############################
-
-
-    // create each light
-    gLights.push_back(new Light( Light::LightType::Spot,        { 0.8f, 0.8f, 1.0f }, 10));
-    gLights.push_back(new Light( Light::LightType::Point,       { 1.0f, 0.8f, 0.2f }, 40));
-    gLights.push_back(new Light( Light::LightType::Directional, { 1.0f, 0.1f, 1.0f }, 0.4f)); // directional lights are very bright, so their strength property is a LOT lower compared to other lights
-
-    // position and rotate each light
-    gLights[0]->model->SetPosition({  30, 20,  0 });
-    gLights[1]->model->SetPosition({ -20, 50, 20 });
-    gLights[2]->model->SetPosition({  60, 40, 20 });
-    gLights[2]->model->SetRotation({ ToRadians(50.0f), ToRadians(-50.0f), 0.0f });
 
 
 
@@ -569,16 +552,6 @@ void UpdateScene(float frameTime)
 	// Control sphere (will update its world matrix)
     gTeapot->Control(0, frameTime, Key_I, Key_K, Key_J, Key_L, Key_U, Key_O, Key_Period, Key_Comma);
 
-    // Orbit the light - a bit of a cheat with the static variable [ask the tutor if you want to know what this is]
-	static float rotate = 0.0f;
-    static bool go = true;
-	gLights[0]->model->SetPosition( gTeapot->Position() + CVector3{ cos(rotate) * gLightOrbit, 10, sin(rotate) * gLightOrbit } );
-    if (go)  rotate -= gLightOrbitSpeed * frameTime;
-    if (KeyHit(Key_1))  go = !go;
-
-	// Control camera (will update its view matrix)
-
-
     // Toggle FPS limiting
     if (KeyHit(Key_P))  lockFPS = !lockFPS;
 
@@ -601,19 +574,5 @@ void UpdateScene(float frameTime)
         totalFrameTime = 0;
         frameCount = 0;
     }
-
-    gLights[1]->strength -= 0.2f * strengthMultiplier; // 40%
-    if (gLights[1]->strength <= 0)                    // make one light pulsate on and off
-        strengthMultiplier = -1;                      //
-    else if (gLights[1]->strength >= 100)             //
-        strengthMultiplier = 1;                       //
-
-
-
-    gLights[0]->colour.x -= 0.003f  * colourMultiplier; // 40%
-    if (gLights[0]->colour.x <= 0)                    // make the other light gradually change colour between blue and white
-        colourMultiplier = -1;                        //
-    else if (gLights[0]->colour.x >= 1)               //
-        colourMultiplier = 1;                         //
 
 }

@@ -20,6 +20,7 @@
 #include "Shader.h"
 #include "Input.h"
 #include "Common.h"
+//#include "Light.h"
 
 #include "CVector2.h" 
 #include "CVector3.h" 
