@@ -16,6 +16,8 @@
 #include "Camera.h"
 #include "Texture.h"
 
+class Shader;
+
 
 //--------------------------------------------------------------------------------------
 // Global Variables
@@ -55,7 +57,7 @@ extern std::vector<std::string> mediaPaths;
 extern Camera* mainCamera;
 extern std::vector <Light*> gLights; 
 extern std::vector <Texture*> textures;
-
+extern std::vector <Shader*> shaders;
 
 
 //--------------------------------------------------------------------------------------

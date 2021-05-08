@@ -21,6 +21,15 @@ Texture* cobbleNormalMap = nullptr;
 Texture* alphaTexture = nullptr;
 Texture* trolltexture = nullptr;
 Texture* cellMap = nullptr;
+Shader* wiggleShader = nullptr;
+Shader* fadingShader = nullptr;
+Shader* normalMappingShader = nullptr;
+Shader* parallaxMappingShader = nullptr;
+Shader* cellShading = nullptr;
+Shader* cellShadingOutline = nullptr;
+Shader* AlphaBlendingShader = nullptr;
+Shader* BasicTransformShader = nullptr;
+Shader* LightModelShader = nullptr;
 
 
 int strengthMultiplier = 1;
@@ -78,6 +87,18 @@ void Start()
     alphaTexture = new Texture("Glass.png");
     trolltexture = new Texture("Green.png");
     cellMap = new Texture("CellGradient.png");
+
+
+    wiggleShader = new Shader("Wiggle");
+    fadingShader = new Shader("Fading");
+    normalMappingShader = new Shader("NormalMapping");
+    parallaxMappingShader = new Shader("ParallaxMapping");
+    cellShading = new Shader("CellShading");
+    cellShadingOutline = new Shader("CellShadingOutline");
+
+    AlphaBlendingShader = new Shader("AlphaBlending", true, false);
+    BasicTransformShader = new Shader("BasicTransform", false, true);
+    LightModelShader = new Shader("LightModel", true, false);
 }
 
 void Update(float frametime)

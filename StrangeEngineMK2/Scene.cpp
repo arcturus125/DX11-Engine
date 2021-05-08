@@ -190,17 +190,6 @@ bool InitGeometry()
         BasicTransformShader    = new Shader("BasicTransform", false, true);
         LightModelShader        = new Shader("LightModel", true, false);
 
-        // add each shader to the list of shaders
-        shaders.push_back(wiggleShader);
-        shaders.push_back(fadingShader);
-        shaders.push_back(normalMappingShader);
-        shaders.push_back(parallaxMappingShader);
-        shaders.push_back(defaultShader);
-        shaders.push_back(cellShading);
-        shaders.push_back(AlphaBlendingShader);
-        shaders.push_back(BasicTransformShader);
-        shaders.push_back(LightModelShader);
-
     }
     // if there is an error loading any of these Shaders, display error message to user
     catch (std::runtime_error e)  
