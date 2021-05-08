@@ -9,6 +9,18 @@ Light* directionalLight;
 //CUSTOM
 Light* spotLight;
 Light* pointLight;
+Texture* characterTexture = nullptr;
+Texture* woodTexture = nullptr;
+Texture* crateTexture = nullptr;
+Texture* grassTexture = nullptr;
+Texture* lightTexture = nullptr;
+Texture* patternTexture = nullptr;
+Texture* paternNormalMap = nullptr;
+Texture* cobbleTexture = nullptr;
+Texture* cobbleNormalMap = nullptr;
+Texture* alphaTexture = nullptr;
+Texture* trolltexture = nullptr;
+Texture* cellMap = nullptr;
 
 
 int strengthMultiplier = 1;
@@ -52,6 +64,20 @@ void Start()
     pointLight->model->SetPosition({ -20, 50, 20 });
     directionalLight->model->SetPosition({ 60, 40, 20 });
     directionalLight->model->SetRotation({ ToRadians(50.0f), ToRadians(-50.0f), 0.0f });
+
+
+    characterTexture = new Texture("StoneDiffuseSpecular.dds");
+    patternTexture = new Texture("PatternDiffuseSpecular.dds");
+    paternNormalMap = new Texture("PatternNormal.dds");
+    cobbleTexture = new Texture("CobbleDiffuseSpecular.dds");
+    cobbleNormalMap = new Texture("CobbleNormalHeight.dds");
+    woodTexture = new Texture("WoodDiffuseSpecular.dds");
+    crateTexture = new Texture("CargoA.dds");
+    grassTexture = new Texture("GrassDiffuseSpecular.dds");
+    lightTexture = new Texture("Flare.jpg");
+    alphaTexture = new Texture("Glass.png");
+    trolltexture = new Texture("Green.png");
+    cellMap = new Texture("CellGradient.png");
 }
 
 void Update(float frametime)

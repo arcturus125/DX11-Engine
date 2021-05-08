@@ -11,6 +11,7 @@ Texture::Texture(std::string filePath)
 		std::string absoloutePath = mediaPaths[i] + filePath;
 		if (LoadTexture(absoloutePath, &gTextureMap, &gTextureMapSRV))
 		{
+			textures.push_back(this);
 			return;
 		}
 	}

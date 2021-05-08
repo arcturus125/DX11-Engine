@@ -227,31 +227,20 @@ bool InitGeometry()
     //  load textures
     // #############################
 
-    try 
+    try
     {
-        characterTexture    = new Texture("StoneDiffuseSpecular.dds");
-        patternTexture      = new Texture("PatternDiffuseSpecular.dds");
-        paternNormalMap     = new Texture("PatternNormal.dds");
-        cobbleTexture       = new Texture("CobbleDiffuseSpecular.dds");
-        cobbleNormalMap     = new Texture("CobbleNormalHeight.dds");
-        woodTexture         = new Texture("WoodDiffuseSpecular.dds");
-        crateTexture        = new Texture("CargoA.dds");
-        grassTexture        = new Texture("GrassDiffuseSpecular.dds");
-        lightTexture        = new Texture("Flare.jpg");
-        alphaTexture        = new Texture("Glass.png");
-        trolltexture        = new Texture("Green.png");
-        cellMap             = new Texture("CellGradient.png");
-
-        // add the textures to the list of textures
-        textures.push_back(characterTexture);
-        textures.push_back(paternNormalMap);
-        textures.push_back(cobbleTexture);
-        textures.push_back(cobbleNormalMap);
-        textures.push_back(woodTexture);
-        textures.push_back(crateTexture);
-        textures.push_back(grassTexture);
-        textures.push_back(lightTexture);
-        textures.push_back(patternTexture);
+        characterTexture = new Texture("StoneDiffuseSpecular.dds");
+        patternTexture = new Texture("PatternDiffuseSpecular.dds");
+        paternNormalMap = new Texture("PatternNormal.dds");
+        cobbleTexture = new Texture("CobbleDiffuseSpecular.dds");
+        cobbleNormalMap = new Texture("CobbleNormalHeight.dds");
+        woodTexture = new Texture("WoodDiffuseSpecular.dds");
+        crateTexture = new Texture("CargoA.dds");
+        grassTexture = new Texture("GrassDiffuseSpecular.dds");
+        lightTexture = new Texture("Flare.jpg");
+        alphaTexture = new Texture("Glass.png");
+        trolltexture = new Texture("Green.png");
+        cellMap = new Texture("CellGradient.png");
     }
     // if there is an error loading any of these meshes, display error message to user
     catch (std::runtime_error e)

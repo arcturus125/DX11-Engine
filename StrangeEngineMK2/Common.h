@@ -14,6 +14,7 @@
 #include "Light.h"
 #include <vector>
 #include "Camera.h"
+#include "Texture.h"
 
 
 //--------------------------------------------------------------------------------------
@@ -52,7 +53,8 @@ extern std::vector<std::string> shaderPaths;
 extern std::vector<std::string> mediaPaths;
 
 extern Camera* mainCamera;
-extern std::vector <Light*> gLights;
+extern std::vector <Light*> gLights; 
+extern std::vector <Texture*> textures;
 
 
 
