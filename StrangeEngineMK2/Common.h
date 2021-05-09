@@ -13,6 +13,11 @@
 #include "CMatrix4x4.h"
 #include "Light.h"
 #include <vector>
+#include "Camera.h"
+#include "Texture.h"
+#include "Model.h"
+
+class Shader;
 
 
 //--------------------------------------------------------------------------------------
@@ -42,7 +47,6 @@ extern ID3D11DepthStencilView* gDepthStencil;            // The depth buffer con
 extern const float ROTATION_SPEED;
 extern const float MOVEMENT_SPEED;
 
-
 // A global error message to help track down fatal errors - set it to a useful message
 // when a serious error occurs
 extern std::string gLastError;
@@ -50,6 +54,11 @@ extern std::string gLastError;
 extern std::vector<std::string> shaderPaths;
 extern std::vector<std::string> mediaPaths;
 
+extern Camera* mainCamera;
+extern std::vector <Light*> gLights; 
+extern std::vector <Texture*> textures;
+extern std::vector <Shader*> shaders;
+extern std::vector <Model*> autoRenderList;
 
 
 //--------------------------------------------------------------------------------------

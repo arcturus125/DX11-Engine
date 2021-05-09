@@ -20,6 +20,8 @@ Shader::Shader(std::string shaderfileName, bool loadPixelShader, bool loadVertex
     {
         throw std::runtime_error(gLastError);
     }
+
+    shaders.push_back(this);
 }
 
 // Load shaders required for this app, returns true on success

@@ -29,7 +29,7 @@ public:
 
 
 	// Control the camera's position and rotation using keys provided
-	void Control( float frameTime, KeyCode turnUp, KeyCode turnDown, KeyCode turnLeft, KeyCode turnRight,  
+	__declspec(dllexport) void Control( float frameTime, KeyCode turnUp, KeyCode turnDown, KeyCode turnLeft, KeyCode turnRight,
 	              KeyCode moveForward, KeyCode moveBackward, KeyCode moveLeft, KeyCode moveRight);
 
 

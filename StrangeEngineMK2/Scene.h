@@ -20,6 +20,7 @@
 #include "Shader.h"
 #include "Input.h"
 #include "Common.h"
+//#include "Light.h"
 
 #include "CVector2.h" 
 #include "CVector3.h" 
@@ -37,9 +38,6 @@
 // Returns true on success
 __declspec(dllexport) bool InitGeometry();
 
-// Layout the scene
-// Returns true on success
-__declspec(dllexport) bool InitScene();
 
 // Release the geometry resources created above
 __declspec(dllexport) void ReleaseResources();
@@ -49,7 +47,7 @@ __declspec(dllexport) void ReleaseResources();
 // Scene Render and Update
 //--------------------------------------------------------------------------------------
 
-__declspec(dllexport) void RenderScene();
+__declspec(dllexport) bool RenderScene();
 
 // frameTime is the time passed since the last frame
 __declspec(dllexport) void UpdateScene(float frameTime);

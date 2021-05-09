@@ -12,6 +12,6 @@ public:
 	ID3D11Resource* gTextureMap = nullptr;				// This object represents the memory used by the texture on the GPU
 	ID3D11ShaderResourceView* gTextureMapSRV = nullptr; // This object is used to give shaders access to the texture above (SRV = shader resource view)
 
-	Texture(std::string filePath);
+	__declspec(dllexport) Texture(std::string filePath);
 };
 

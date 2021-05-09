@@ -14,18 +14,98 @@
 #include "Mesh.h"
 
 
-Model::Model(Mesh* mesh, CVector3 position /*= { 0,0,0 }*/, CVector3 rotation /*= { 0,0,0 }*/, float scale /*= 1*/)
+std::vector< ID3D11SamplerState*> samplers;
+std::vector< ID3D11BlendState*> blenders;
+std::vector< ID3D11RasterizerState*> cullers;
+std::vector< ID3D11DepthStencilState*> depthStates;
+
+void SetupInterface()
+{
+	samplers = { gPointSampler, gTrilinearSampler, gAnisotropic4xSampler };
+	blenders = { gNoBlendingState,gAdditiveBlendingState,gAlphaBlendingState };
+	cullers = { gCullBackState, gCullFrontState, gCullNoneState };
+	depthStates = { gUseDepthBufferState, gDepthReadOnlyState, gNoDepthBufferState };
+}
+
+Model::Model(Mesh* mesh, CVector3 position /*= { 0,0,0 }*/, CVector3 rotation /*= { 0,0,0 }*/, float scale /*= 1*/, bool autoRender /* = true*/)
     : mMesh(mesh)
 {
+	name = mMesh->filename;
+	SetupInterface();
+	// Set default matrices from mesh
+	mWorldMatrices.resize(mesh->NumberNodes());
+	for (int i = 0; i < mWorldMatrices.size(); ++i)
+		mWorldMatrices[i] = mesh->GetNodeDefaultMatrix(i);
+	// create the default pass of the renderer for the object
+	RendererPass temp;
+	renderPass.push_back(temp);
+
+	SetShader(new Shader("PixelLighting"));
+	SetSampler(gAnisotropic4xSampler);
+	SetBlendingState(gNoBlendingState);
+	SetCullingState(gCullBackState);
+	SetDepthBufferState(gUseDepthBufferState);
+
+	if(autoRender)
+		autoRenderList.push_back(this);
 	
-		// Set default matrices from mesh
-		mWorldMatrices.resize(mesh->NumberNodes());
-		for (int i = 0; i < mWorldMatrices.size(); ++i)
-			mWorldMatrices[i] = mesh->GetNodeDefaultMatrix(i);
-		// create the default pass of the renderer for the object
-		RendererPass temp;
-		renderPass.push_back(temp);
-	
+}
+
+
+void Model::AddRendererPass()
+{
+	RendererPass temp;
+	renderPass.push_back(temp);
+}
+void Model::SetShader(Shader* s, int renderPassIndex)
+{	 
+	renderPass[renderPassIndex].shader = s;
+}
+void Model::AddTexture(Texture* t, int renderPassIndex)
+{	 
+	renderPass[renderPassIndex].textures.push_back(t);
+}
+void Model::SetSampler(ID3D11SamplerState* s, int renderPassIndex)
+{	 
+	renderPass[renderPassIndex].sampler.clear();	 
+	renderPass[renderPassIndex].sampler.push_back(s);
+}
+void Model::AddSampler(ID3D11SamplerState* s, int renderPassIndex)
+{	 
+	renderPass[renderPassIndex].sampler.push_back(s);
+}
+void Model::SetSampler(int s, int renderPassIndex)
+{
+	renderPass[renderPassIndex].sampler.clear();
+	renderPass[renderPassIndex].sampler.push_back(samplers[s]);
+}
+void Model::AddSampler(int s, int renderPassIndex)
+{
+	renderPass[renderPassIndex].sampler.push_back(samplers[s]);
+}
+void Model::SetBlendingState(ID3D11BlendState* b, int renderPassIndex)
+{	 
+	renderPass[renderPassIndex].blender = b;
+}
+void Model::SetBlendingState(int b, int renderPassIndex)
+{
+	renderPass[renderPassIndex].blender = blenders[b];
+}
+void Model::SetCullingState(ID3D11RasterizerState* c, int renderPassIndex)
+{
+	renderPass[renderPassIndex].culling = c;
+}
+void Model::SetCullingState(int c, int renderPassIndex)
+{
+	renderPass[renderPassIndex].culling = cullers[c];
+}
+void Model::SetDepthBufferState(ID3D11DepthStencilState* d, int renderPassIndex)
+{
+	renderPass[renderPassIndex].depth = d;
+}
+void Model::SetDepthBufferState(int d, int renderPassIndex)
+{
+	renderPass[renderPassIndex].depth = depthStates[d];
 }
 
 
