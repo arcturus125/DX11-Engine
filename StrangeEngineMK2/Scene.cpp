@@ -45,24 +45,8 @@ float wiggleTimer = 0;
 //--------------------------------------------------------------------------------------
 std::vector <Model*> autoRenderList;
 
-
-Mesh* gTeapotMesh;
-Mesh* gSphereMesh;
-Mesh* gCubeMesh;
-Mesh* gBumpedCubeMesh;
-Mesh* gCrateMesh;
-Mesh* gGroundMesh;
 Mesh* gLightMesh;
-Mesh* gTrollMesh;
 
-Model* gTeapot;
-Model* gSphere;
-Model* gCube;
-Model* gTest;
-Model* gBumpedCube;
-Model* gCrate;
-Model* gGround;
-Model* gTroll;
 
 
 
@@ -78,9 +62,6 @@ float    gSpecularPower = 256; // Specular power controls shininess - same for a
 
 ColourRGBA gBackgroundColor = { 0.2f, 0.2f, 0.3f, 1.0f };
 
-// Variables controlling light1's orbiting of the cube
-const float gLightOrbit = 20.0f;
-const float gLightOrbitSpeed = 0.7f;
 
 
 
@@ -101,18 +82,7 @@ ID3D11Buffer*     gPerModelConstantBuffer; // --"--
 //--------------------------------------------------------------------------------------
 std::vector <Texture*> textures;
 
-Texture* characterTexture   = nullptr;
-Texture* woodTexture        = nullptr;
-Texture* crateTexture       = nullptr;
-Texture* grassTexture       = nullptr;
 Texture* lightTexture       = nullptr;
-Texture* patternTexture     = nullptr;
-Texture* paternNormalMap    = nullptr;
-Texture* cobbleTexture      = nullptr;
-Texture* cobbleNormalMap    = nullptr;
-Texture* alphaTexture       = nullptr;
-Texture* trolltexture       = nullptr;
-Texture* cellMap            = nullptr;
 
 
 
@@ -121,17 +91,8 @@ Texture* cellMap            = nullptr;
 //--------------------------------------------------------------------------------------
 std::vector <Shader*> shaders;
 
-Shader* wiggleShader            = nullptr;
-Shader* fadingShader            = nullptr;
-Shader* normalMappingShader     = nullptr;
-Shader* parallaxMappingShader   = nullptr;
-Shader* defaultShader           = nullptr;
-Shader* cellShading             = nullptr;
-Shader* cellShadingOutline      = nullptr;
-
-Shader* AlphaBlendingShader     = nullptr;
-Shader* BasicTransformShader    = nullptr;
-Shader* LightModelShader        = nullptr;
+Shader* BasicTransformShader    = nullptr; // shaders used for lights
+Shader* LightModelShader        = nullptr; //
 
 
 float gParallaxDepth = 0.08f; // Overall depth of bumpiness for parallax mapping
@@ -150,53 +111,11 @@ float    OutlineThickness = 0.015f;
 // Returns true on success
 bool InitGeometry()
 {
-    // #############################
-    //  load Meshes
-    // #############################
-    try 
-    {
-        gTeapotMesh     = new Mesh("teapot.x");
-        gSphereMesh     = new Mesh("Sphere.x");
-        gCubeMesh       = new Mesh("Cube.x");
-        gTrollMesh      = new Mesh("Troll.x");
-        gBumpedCubeMesh = new Mesh("Cube.x", true);     // <-----   use true to make this mesh generate tangents
-                                                        //          this means that the model will use TangentVertex in common.hlsli instead of
-                                                        //          BasicVertex. (meaning that normal maps can now be used on the any model using this mesh)
-        gCrateMesh      = new Mesh("CargoContainer.x");
-        gGroundMesh     = new Mesh("Hills.x", true);
-    }
-    // if there is an error loading any of these meshes, display error message to user
-    catch (std::runtime_error e)
-    {
-        gLastError = e.what();
-    }
+    BasicTransformShader    = new Shader("BasicTransform", false, true);
+    LightModelShader        = new Shader("LightModel", true, false);
 
+    lightTexture = new Texture("Flare.jpg");
 
-    // #############################
-    //  load shaders
-    // #############################
-
-    try
-    {
-        wiggleShader            = new Shader("Wiggle");
-        fadingShader            = new Shader("Fading");
-        normalMappingShader     = new Shader("NormalMapping");
-        parallaxMappingShader   = new Shader("ParallaxMapping");
-        defaultShader           = new Shader("PixelLighting");
-        cellShading             = new Shader("CellShading");
-        cellShadingOutline      = new Shader("CellShadingOutline");
-
-        AlphaBlendingShader     = new Shader("AlphaBlending", true, false);
-        BasicTransformShader    = new Shader("BasicTransform", false, true);
-        LightModelShader        = new Shader("LightModel", true, false);
-
-    }
-    // if there is an error loading any of these Shaders, display error message to user
-    catch (std::runtime_error e)  
-    {
-        gLastError = e.what();
-        return false;
-    }
 
 
     // Create GPU-side constant buffers to receive the gPerFrameConstants and gPerModelConstants structures above
@@ -210,35 +129,6 @@ bool InitGeometry()
         return false;
     }
 
-
-
-    // #############################
-    //  load textures
-    // #############################
-
-    try
-    {
-        characterTexture = new Texture("StoneDiffuseSpecular.dds");
-        patternTexture = new Texture("PatternDiffuseSpecular.dds");
-        paternNormalMap = new Texture("PatternNormal.dds");
-        cobbleTexture = new Texture("CobbleDiffuseSpecular.dds");
-        cobbleNormalMap = new Texture("CobbleNormalHeight.dds");
-        woodTexture = new Texture("WoodDiffuseSpecular.dds");
-        crateTexture = new Texture("CargoA.dds");
-        grassTexture = new Texture("GrassDiffuseSpecular.dds");
-        lightTexture = new Texture("Flare.jpg");
-        alphaTexture = new Texture("Glass.png");
-        trolltexture = new Texture("Green.png");
-        cellMap = new Texture("CellGradient.png");
-    }
-    // if there is an error loading any of these meshes, display error message to user
-    catch (std::runtime_error e)
-    {
-        gLastError = e.what();
-        return false;
-    }
-
-
   	// Create all filtering modes, blending modes etc.
 	if (!CreateStates())
 	{
@@ -249,93 +139,6 @@ bool InitGeometry()
 	return true;
 }
 
-
-// Prepare the scene
-// Returns true on success
-bool InitScene() // start ()
-{
-
-    // #############################
-    //  create models
-    // #############################
-
-    gTeapot     = new Model(gTeapotMesh);
-    gSphere     = new Model(gSphereMesh);
-    gCube       = new Model(gCubeMesh);
-    gBumpedCube = new Model(gBumpedCubeMesh);
-    gCrate      = new Model(gCrateMesh);
-    gGround     = new Model(gGroundMesh);
-    gTest       = new Model(gCubeMesh);
-    gTroll      = new Model(gTrollMesh);
-
-    autoRenderList.push_back(gTeapot);
-    autoRenderList.push_back(gSphere);
-    autoRenderList.push_back(gCube);
-    autoRenderList.push_back(gBumpedCube);
-    autoRenderList.push_back(gCrate);
-    autoRenderList.push_back(gGround);
-    autoRenderList.push_back(gTest);
-
-
-	// Position models
-	gTeapot->SetPosition({ 20, 0, 0 });
-    gTeapot->SetScale(1); 
-    gTeapot->SetRotation({ 0, ToRadians(135.0f), 0 });
-    gTeapot->addTexture(characterTexture);
-
-    gSphere->SetPosition({ 10,10,10 });
-    gSphere->SetShader(wiggleShader);
-    gSphere->addTexture( characterTexture);
-
-    gTest->SetPosition({ 10,20,10 });
-    gTest->SetShader(AlphaBlendingShader);
-    gTest->addTexture(alphaTexture);
-    gTest->SetBlendingState(gAlphaBlendingState);
-
-    gCube->SetPosition({ 30,20,10 });
-    gCube->SetShader(fadingShader);
-    gCube->addTexture(characterTexture);
-    gCube->addTexture(woodTexture);
-
-    gBumpedCube->SetPosition({ 60,30,20 });
-    gBumpedCube->SetShader(normalMappingShader);
-    gBumpedCube->addTexture(patternTexture);
-    gBumpedCube->addTexture(paternNormalMap);
-
-	gCrate-> SetPosition({ 45, 0, 45 });
-	gCrate-> SetScale(6);
-    gCrate->addTexture(crateTexture);
-
-
-    gTroll->SetPosition({ 30, 30, 10 });
-    gTroll->SetScale(5);
-
-    gTroll->SetShader(cellShadingOutline);
-    gTroll->SetBlendingState(gNoBlendingState);
-    gTroll->SetDepthBufferState(gUseDepthBufferState);
-    gTroll->SetCullingState(gCullFrontState);
-
-    gTroll->AddRendererPass();
-    gTroll->SetShader(cellShading, 1);
-    gTroll->addTexture(trolltexture,1);
-    gTroll->addTexture(cellMap,1);
-    gTroll->SetSampler(gAnisotropic4xSampler,1);
-    gTroll->AddSampler(gPointSampler, 1);
-    gTroll->SetCullingState(gCullBackState,1);
-    autoRenderList.push_back(gTroll);
-
-
-    gGround->SetShader(parallaxMappingShader);
-    gGround->addTexture(cobbleTexture);
-    gGround->addTexture(cobbleNormalMap);
-
-
-
-
-
-
-    return true;
-}
 
 
 // Release the geometry and scene resources created above
@@ -367,20 +170,6 @@ void ReleaseResources()
         delete gLights[i]->model;  gLights[i]->model = nullptr;
         delete gLights[i];
     }
-    
-    // delete models
-    delete gGround;    gGround    = nullptr;
-    delete gCrate;     gCrate     = nullptr;
-    delete gTeapot;  gTeapot = nullptr;
-    delete gSphere; gSphere = nullptr;
-    delete gCube; gCube = nullptr;
-
-    // delete meshes
-    delete gLightMesh;     gLightMesh     = nullptr;
-    delete gGroundMesh;    gGroundMesh    = nullptr;
-    delete gCrateMesh;     gCrateMesh     = nullptr;
-    delete gTeapotMesh;  gTeapotMesh = nullptr;
-
 }
 
 
@@ -528,7 +317,7 @@ void UpdateScene(float frameTime)
 
 
 	// Control sphere (will update its world matrix)
-    gTeapot->Control(0, frameTime, Key_I, Key_K, Key_J, Key_L, Key_U, Key_O, Key_Period, Key_Comma);
+    //gTeapot->Control(0, frameTime, Key_I, Key_K, Key_J, Key_L, Key_U, Key_O, Key_Period, Key_Comma);
 
     // Toggle FPS limiting
     if (KeyHit(Key_P))  lockFPS = !lockFPS;

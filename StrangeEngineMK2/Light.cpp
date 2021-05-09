@@ -17,7 +17,7 @@
 Light::Light(LightType pType, CVector3 pColour, float pStrength)
 {
     gLightMesh = new Mesh("Light.x");
-    model = new Model(gLightMesh);
+    model = new Model(gLightMesh, { 0,0,0 }, { 0,0,0 }, 1, false);
     type = pType;
     colour = pColour;
     strength = pStrength;

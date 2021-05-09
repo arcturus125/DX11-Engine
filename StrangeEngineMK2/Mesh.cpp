@@ -25,6 +25,7 @@
 // Will throw a std::runtime_error exception on failure (since constructors can't return errors).
 Mesh::Mesh(const std::string& fileName, bool requireTangents /*= false*/)
 {
+    filename = fileName;
     for (int i = 0; i < mediaPaths.size(); i++)
     {
         Assimp::Importer importer;

@@ -2,7 +2,6 @@ c:\strangeengine\strangeenginemk2\x64\debug\strangeenginemk2.pch
 c:\strangeengine\strangeenginemk2\x64\debug\vc142.pdb
 c:\strangeengine\strangeenginemk2\x64\debug\vc142.idb
 c:\strangeengine\strangeenginemk2\x64\debug\pch.obj
-c:\strangeengine\strangeenginemk2\x64\debug\dllmain.obj
 c:\strangeengine\strangeenginemk2\x64\debug\timer.obj
 c:\strangeengine\strangeenginemk2\x64\debug\input.obj
 c:\strangeengine\strangeenginemk2\x64\debug\graphicshelpers.obj
@@ -15,8 +14,9 @@ c:\strangeengine\strangeenginemk2\x64\debug\mesh.obj
 c:\strangeengine\strangeenginemk2\x64\debug\cvector3.obj
 c:\strangeengine\strangeenginemk2\x64\debug\cvector2.obj
 c:\strangeengine\strangeenginemk2\x64\debug\cmatrix4x4.obj
-c:\strangeengine\strangeenginemk2\x64\debug\light.obj
 c:\strangeengine\strangeenginemk2\x64\debug\engine.obj
+c:\strangeengine\strangeenginemk2\x64\debug\light.obj
+c:\strangeengine\strangeenginemk2\x64\debug\dllmain.obj
 c:\strangeengine\strangeenginemk2\x64\debug\direct3dsetup.obj
 c:\strangeengine\strangeenginemk2\x64\debug\camera.obj
 c:\strangeengine\strangeenginemk2\x64\debug\alphablending_ps.cso
@@ -47,7 +47,7 @@ c:\strangeengine\strangeenginemk2\x64\debug\strangeenginemk2.tlog\cl.write.1.tlo
 c:\strangeengine\strangeenginemk2\x64\debug\strangeenginemk2.tlog\fxc.command.1.tlog
 c:\strangeengine\strangeenginemk2\x64\debug\strangeenginemk2.tlog\fxc.read.1.tlog
 c:\strangeengine\strangeenginemk2\x64\debug\strangeenginemk2.tlog\fxc.write.1.tlog
-c:\strangeengine\strangeenginemk2\x64\debug\strangeenginemk2.tlog\link.19284.delete.1.tlog
+c:\strangeengine\strangeenginemk2\x64\debug\strangeenginemk2.tlog\link.15840.delete.1.tlog
 c:\strangeengine\strangeenginemk2\x64\debug\strangeenginemk2.tlog\link.command.1.tlog
 c:\strangeengine\strangeenginemk2\x64\debug\strangeenginemk2.tlog\link.read.1.tlog
 c:\strangeengine\strangeenginemk2\x64\debug\strangeenginemk2.tlog\link.write.1.tlog

@@ -38,9 +38,6 @@
 // Returns true on success
 __declspec(dllexport) bool InitGeometry();
 
-// Layout the scene
-// Returns true on success
-__declspec(dllexport) bool InitScene();
 
 // Release the geometry resources created above
 __declspec(dllexport) void ReleaseResources();

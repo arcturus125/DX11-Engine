@@ -2,7 +2,7 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>C:\StrangeEngine\Template\StrangeEngine_BlankProject\x64\Release\StrangeEngine_BlankProject.exe</FullPath>
+      <FullPath>C:\StrangeEngine\StrangeEngine_BlankProject\x64\Release\StrangeEngine_BlankProject.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />

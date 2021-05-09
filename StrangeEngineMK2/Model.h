@@ -18,6 +18,35 @@
 #define _MODEL_H_INCLUDED_
 
 class Mesh;
+class Shader;
+
+
+enum SamplerState
+{
+    Point,
+    Trilinear,
+    Anisotropic4x
+};
+enum BlendingState
+{
+    NoBlending,
+    Additive,
+    Alpha
+};
+enum CullingState
+{
+    Back,
+    Front,
+    None
+};
+enum DepthBufferState
+{
+    UseDepthBuffer,
+    DepthReadOnly,
+    NoDepthBuffer
+};
+
+
 
 class Model
 {
@@ -26,63 +55,43 @@ public:
 	// Construction / Usage
 	//-------------------------------------
 
-    Model(Mesh* mesh, CVector3 position = { 0,0,0 }, CVector3 rotation = { 0,0,0 }, float scale = 1);
+    __declspec(dllexport) Model(Mesh* mesh, CVector3 position = { 0,0,0 }, CVector3 rotation = { 0,0,0 }, float scale = 1, bool autoRender = true);
 
     struct RendererPass
     {
-        Shader* shader = new Shader("PixelLighting");
+        Shader* shader;
         std::vector<Texture*> textures;
-        std::vector<ID3D11SamplerState*> sampler = { gAnisotropic4xSampler };
-        ID3D11BlendState* blender = gNoBlendingState;
-        ID3D11RasterizerState* culling = gCullBackState;
-        ID3D11DepthStencilState* depth = gUseDepthBufferState;
+        std::vector<ID3D11SamplerState*> sampler;
+        ID3D11BlendState* blender;
+        ID3D11RasterizerState* culling;
+        ID3D11DepthStencilState* depth;
     };
     std::vector<RendererPass> renderPass;
 
-    void AddRendererPass()
-    {
-        RendererPass temp;
-        renderPass.push_back(temp);
-    }
-    void SetShader(Shader* s, int renderPassIndex = 0)
-    {
-        renderPass[renderPassIndex].shader = s;
-    }
-    void addTexture(Texture* t, int renderPassIndex = 0)
-    {
-        renderPass[renderPassIndex].textures.push_back(t);
-    }
-    void SetSampler(ID3D11SamplerState* s, int renderPassIndex = 0)
-    {
-        renderPass[renderPassIndex].sampler.clear();
-        renderPass[renderPassIndex].sampler.push_back(s);
-    }
-    void AddSampler(ID3D11SamplerState* s, int renderPassIndex = 0)
-    {
-        renderPass[renderPassIndex].sampler.push_back(s);
-    }
-    void SetBlendingState(ID3D11BlendState* b, int renderPassIndex = 0)
-    {
-        renderPass[renderPassIndex].blender = b;
-    }
-    void SetCullingState(ID3D11RasterizerState* c, int renderPassIndex = 0)
-    {
-        renderPass[renderPassIndex].culling = c;
-    }
-    void SetDepthBufferState(ID3D11DepthStencilState* d, int renderPassIndex = 0)
-    {
-        renderPass[renderPassIndex].depth = d;
-    }
+    __declspec(dllexport) void AddRendererPass();
+    __declspec(dllexport) void SetShader(Shader* s, int renderPassIndex = 0);
+    __declspec(dllexport) void AddTexture(Texture* t, int renderPassIndex = 0);
+    __declspec(dllexport) void SetSampler(ID3D11SamplerState* s, int renderPassIndex = 0);
+    __declspec(dllexport) void AddSampler(ID3D11SamplerState* s, int renderPassIndex = 0);
+    __declspec(dllexport) void SetSampler(int s, int renderPassIndex = 0);
+    __declspec(dllexport) void AddSampler(int s, int renderPassIndex = 0);
+    __declspec(dllexport) void SetBlendingState(ID3D11BlendState* b, int renderPassIndex = 0);
+    __declspec(dllexport) void SetBlendingState(int b, int renderPassIndex = 0);
+    __declspec(dllexport) void SetCullingState(ID3D11RasterizerState* c, int renderPassIndex = 0);
+    __declspec(dllexport) void SetCullingState(int c, int renderPassIndex = 0);
+    __declspec(dllexport) void SetDepthBufferState(ID3D11DepthStencilState* d, int renderPassIndex = 0);
+    __declspec(dllexport) void SetDepthBufferState(int d, int renderPassIndex = 0);
+
 
 
     // The render function simply passes this model's matrices over to Mesh:Render.
     // All other per-frame constants must have been set already along with shaders, textures, samplers, states etc.
-    void Render();
-    void AutoRender(ID3D11DeviceContext* cBufferConstants, int rendererIndex);
+    __declspec(dllexport) void Render();
+    __declspec(dllexport) void AutoRender(ID3D11DeviceContext* cBufferConstants, int rendererIndex);
 
 
 	// Control a given node in the model using keys provided. Amount of motion performed depends on frame time
-	void Control(int node, float frameTime, KeyCode turnUp, KeyCode turnDown, KeyCode turnLeft, KeyCode turnRight,  
+    __declspec(dllexport) void Control(int node, float frameTime, KeyCode turnUp, KeyCode turnDown, KeyCode turnLeft, KeyCode turnRight,
 				                            KeyCode turnCW, KeyCode turnCCW, KeyCode moveForward, KeyCode moveBackward );
 
 
@@ -90,6 +99,7 @@ public:
 	// Data access
 	//-------------------------------------
 
+    std::string name;
     //********************************
     // All functions now accept a "node" parameter which specifies which node in the hierarchy to use. Defaults to 0, the root.
     // The hierarchy is stored in depth-first order
