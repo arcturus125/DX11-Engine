@@ -28,7 +28,7 @@ class Shader;
 // use of globals, but done this way to keep code simpler so the DirectX content is
 // clearer. However, try to architect your own code in a better way.
 
-// Windows variables
+// Handle to the window that we are rendering to ( the handle to the window we created in Engine.InitWindow() )
 extern HWND gHWnd;
 
 // Viewport size

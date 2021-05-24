@@ -5,8 +5,8 @@ C:\StrangeEngine\StrangeEngineMK2\Texture.h(6,31): warning C4099: 'ID3D11ShaderR
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d3d11.h(3618): message : see declaration of 'ID3D11ShaderResourceView'
      Creating library C:\StrangeEngine\StrangeEngine_Runnable\x64\Release\StrangeEngine_Runnable.lib and object C:\StrangeEngine\StrangeEngine_Runnable\x64\Release\StrangeEngine_Runnable.exp
   Generating code
-  31 of 100 functions (31.0%) were compiled, the rest were copied from previous compilation.
-    19 functions were new in current compilation
+  0 of 100 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
     0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   StrangeEngine_Runnable.vcxproj -> C:\StrangeEngine\StrangeEngine_Runnable\x64\Release\StrangeEngine_Runnable.exe
