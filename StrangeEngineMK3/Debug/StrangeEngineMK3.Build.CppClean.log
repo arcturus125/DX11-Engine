@@ -2,8 +2,10 @@ c:\strangeengine\strangeenginemk3\debug\strangeenginemk3.pch
 c:\strangeengine\strangeenginemk3\debug\vc142.pdb
 c:\strangeengine\strangeenginemk3\debug\vc142.idb
 c:\strangeengine\strangeenginemk3\debug\pch.obj
-c:\strangeengine\strangeenginemk3\debug\dllmain.obj
 c:\strangeengine\strangeenginemk3\debug\strangeengine.obj
+c:\strangeengine\strangeenginemk3\debug\dllmain.obj
+c:\strangeengine\strangeenginemk3\debug\initdirect3d.obj
+c:\strangeengine\strangeenginemk3\debug\gametimer.obj
 c:\strangeengine\strangeenginemk3\debug\strangeenginemk3.dll
 c:\strangeengine\strangeenginemk3\debug\strangeenginemk3.ilk
 c:\strangeengine\strangeenginemk3\debug\strangeenginemk3.pdb
