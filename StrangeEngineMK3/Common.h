@@ -4,9 +4,20 @@
 #include "GameTimer.h"
 #include <string>
 
-GameTimer mTimer;
+extern GameTimer gTimer;
 
 extern std::string gLastError;
+
+extern HINSTANCE gAppHInstance; // application instance handle
+extern HWND	  gHMainWindow;	 // main window handle
+extern bool	  gAppPaused;    // is the application paused?
+extern bool	  gMinimized;    // is the application minimized?
+extern bool	  gMaximized;    // is the application maximized?
+extern bool	  gResizing;     // are the resize bard being dragged?
+extern UINT	  g4xMsaaQuality;  // quality level of 4x MSAA
+
+extern int gViewportWidth;	 // the width and height of the window
+extern int gViewportHeight;	 //
 
 extern ID3D11Device*			gd3dDevice;			  // (4.2.1)
 extern ID3D11DeviceContext*		gd3dImmediateContext; // 

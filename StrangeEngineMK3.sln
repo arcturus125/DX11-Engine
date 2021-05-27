@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StrangeEngineMK3", "StrangeEngineMK3\StrangeEngineMK3.vcxproj", "{F2B2E278-A6BF-4F4F-A693-4C160D4EA10F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StrangeEngineMK3_Runnable", "StrangeEngineMK3_Runnable\StrangeEngineMK3_Runnable.vcxproj", "{D91B5DDA-F8F0-4C13-B15C-29D63CF32DE8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F2B2E278-A6BF-4F4F-A693-4C160D4EA10F} = {F2B2E278-A6BF-4F4F-A693-4C160D4EA10F}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

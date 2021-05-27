@@ -1,0 +1,22 @@
+﻿  StrangeEngineMK3_Runnable.cpp
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 10 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  StrangeEngineMK3_Runnable.vcxproj -> C:\StrangeEngine\StrangeEngineMK3_Runnable\Release\StrangeEngineMK3_Runnable.exe
+  C:\StrangeEngine\StrangeEngineMK3\Release\dllmain.obj
+  C:\StrangeEngine\StrangeEngineMK3\Release\GameTimer.obj
+  C:\StrangeEngine\StrangeEngineMK3\Release\InitDirect3D.obj
+  C:\StrangeEngine\StrangeEngineMK3\Release\pch.obj
+  C:\StrangeEngine\StrangeEngineMK3\Release\StrangeEngine.obj
+  C:\StrangeEngine\StrangeEngineMK3\Release\StrangeEngineMK3.dll
+  C:\StrangeEngine\StrangeEngineMK3\Release\StrangeEngineMK3.dll.recipe
+  C:\StrangeEngine\StrangeEngineMK3\Release\StrangeEngineMK3.exp
+  C:\StrangeEngine\StrangeEngineMK3\Release\StrangeEngineMK3.iobj
+  C:\StrangeEngine\StrangeEngineMK3\Release\StrangeEngineMK3.ipdb
+  C:\StrangeEngine\StrangeEngineMK3\Release\StrangeEngineMK3.lib
+  C:\StrangeEngine\StrangeEngineMK3\Release\StrangeEngineMK3.log
+  C:\StrangeEngine\StrangeEngineMK3\Release\StrangeEngineMK3.pch
+  C:\StrangeEngine\StrangeEngineMK3\Release\StrangeEngineMK3.pdb
+  C:\StrangeEngine\StrangeEngineMK3\Release\StrangeEngineMK3.vcxproj.FileListAbsolute.txt
+  15 File(s) copied
