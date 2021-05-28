@@ -1,40 +1,75 @@
 #include "pch.h"
 #include "StrangeEngine.h"
-#include <iostream>
-#include "InitDirect3D.h"
-#include "Common.h"
 
 std::string gLastError = "no error set";
 GameTimer gTimer;
 
+
+
 STRANGEENGINEMK3_API void StrangeEngine::StartEngine()
 {
 	std::cout << "StrangeEngineMK3 starting up\n";
-	// Dirext X 11 initialization
-	SetDefaults(GetModuleHandle(0));
-	InitMainWindow();
-	if (!CreateDeviceAndContext())
+	// Direct X 11 initialization
+	DirectX = new InitDirect3D(GetModuleHandle(0));
+	DirectX->InitMainWindow();
+	if (!DirectX->CreateDeviceAndContext())
 	{
-		MessageBoxA(gHMainWindow, gLastError.c_str(), NULL, MB_OK);
+		MessageBoxA(DirectX->mHMainWindow, gLastError.c_str(), NULL, MB_OK);
 		return;
 	}
-	Check4xMSAAQualitySupport();
-	if (!DescribeSwapChain())
+	DirectX->Check4xMSAAQualitySupport();
+	if (!DirectX->DescribeSwapChain())
 	{
-		MessageBoxA(gHMainWindow, gLastError.c_str(), NULL, MB_OK);
+		MessageBoxA(DirectX->mHMainWindow, gLastError.c_str(), NULL, MB_OK);
 		return;
 	}
-	CreateRenderTargetView();
-	if (!CreateDepthBuffer())
+	DirectX->CreateRenderTargetView();
+	if (!DirectX->CreateDepthBuffer())
 	{
-		MessageBoxA(gHMainWindow, gLastError.c_str(), NULL, MB_OK);
+		MessageBoxA(DirectX->mHMainWindow, gLastError.c_str(), NULL, MB_OK);
 		return;
 	}
-	BindViewsToOutputMergerStage();
-	SetViewport();
+	DirectX->BindViewsToOutputMergerStage();
+	DirectX->SetViewport();
 
+	std::cout << "StrangeEngineMK3 startup complete\n";
 
 	// runtime
 	Run();
 
+}
+
+int StrangeEngine::Run()
+{
+	MSG msg = { 0 };
+
+	gTimer.Reset();
+
+	while (msg.message != WM_QUIT)
+	{
+		// If there are Window messages then process them.
+		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		// Otherwise, do animation/game stuff.
+		else
+		{
+			gTimer.Tick();
+
+			if (!DirectX->mAppPaused)
+			{
+				DirectX->CalculateFrameStats();
+				//UpdateScene(mTimer.DeltaTime());
+				DirectX->DrawScene();
+			}
+			else
+			{
+				Sleep(100);
+			}
+		}
+	}
+
+	return (int)msg.wParam;
 }
