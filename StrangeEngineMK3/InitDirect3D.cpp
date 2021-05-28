@@ -110,6 +110,7 @@ LRESULT InitDirect3D::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 		// WM_DESTROY is sent when the window is being destroyed.
 	case WM_DESTROY:
+		parentEngine->StopEngine();
 		PostQuitMessage(0);
 		return 0;
 
@@ -147,7 +148,7 @@ LRESULT InitDirect3D::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 //		Init functions
 // ==============================================================
 
-InitDirect3D::InitDirect3D(HINSTANCE hInstance)
+InitDirect3D::InitDirect3D(HINSTANCE hInstance, StrangeEngine* strangeEngine_Instance)
 {
 	if (singleton != nullptr)
 	{
@@ -156,6 +157,14 @@ InitDirect3D::InitDirect3D(HINSTANCE hInstance)
 		singleton = nullptr;
 
 		gLastError = "[WARN] multiple instances of InitDirect3D were created, releasing previous instance to avoid memory leaks";
+	}
+	if (parentEngine != nullptr)
+	{
+		std::cout << "[WARN] multiple instances of StrangeEngine were created, releasing previous instance to avoid memory leaks" << std::endl;
+		delete parentEngine;
+		parentEngine = nullptr;
+
+		gLastError = "[WARN] multiple instances of StrangeEngine were created, releasing previous instance to avoid memory leaks";
 	}
 
 
@@ -181,9 +190,10 @@ InitDirect3D::InitDirect3D(HINSTANCE hInstance)
 	mDepthStencilView = 0;
 
 	singleton = this;
+	parentEngine = strangeEngine_Instance;
 	
 	#if defined(DEBUG)||defined(_DEBUG)
-	std::cout << "Defaults Set" << std::endl;
+	std::cout << "InitDirect3D instance created: Defaults Set" << std::endl;
 	#endif
 }
 
@@ -200,6 +210,11 @@ InitDirect3D::~InitDirect3D()
 
 	md3dImmediateContext->Release(); md3dImmediateContext = nullptr;
 	md3dDevice->Release(); md3dDevice = nullptr;
+
+	
+	#if defined(DEBUG)||defined(_DEBUG)
+	std::cout << "InitDirect3D instance deleted" << std::endl;
+	#endif
 }
 
 bool InitDirect3D::InitMainWindow()

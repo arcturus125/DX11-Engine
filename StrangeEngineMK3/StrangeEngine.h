@@ -18,5 +18,6 @@ public:
 
 	STRANGEENGINEMK3_API void StartEngine();
 	int Run();
+	void StopEngine();
 };
 

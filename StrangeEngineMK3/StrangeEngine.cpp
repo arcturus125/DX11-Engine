@@ -10,7 +10,12 @@ STRANGEENGINEMK3_API void StrangeEngine::StartEngine()
 {
 	std::cout << "StrangeEngineMK3 starting up\n";
 	// Direct X 11 initialization
-	DirectX = new InitDirect3D(GetModuleHandle(0));
+	DirectX = new InitDirect3D(GetModuleHandle(0), this);
+	if (gLastError != "no error set")
+	{
+		MessageBoxA(DirectX->mHMainWindow, gLastError.c_str(), NULL, MB_OK);
+		return;
+	}
 	DirectX->InitMainWindow();
 	if (!DirectX->CreateDeviceAndContext())
 	{
@@ -72,4 +77,11 @@ int StrangeEngine::Run()
 	}
 
 	return (int)msg.wParam;
+}
+
+void StrangeEngine::StopEngine()
+{
+	std::cout << "Application closed, shutting down engine\n";
+	delete DirectX;
+	DirectX = nullptr;
 }

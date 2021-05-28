@@ -12,10 +12,13 @@
 // message handler for windows
 LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+class StrangeEngine;
+
 class InitDirect3D
 {
 public:
 	static InitDirect3D* singleton;
+	StrangeEngine* parentEngine;
 
 
 	HINSTANCE mAppHInstance; // application instance handle
@@ -50,7 +53,7 @@ public:
 	LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	// init functions
-	InitDirect3D(HINSTANCE hInstance);
+	InitDirect3D(HINSTANCE hInstance, StrangeEngine* strangeEngine_Instance);
 	~InitDirect3D();
 	bool InitMainWindow();
 	bool CreateDeviceAndContext();
