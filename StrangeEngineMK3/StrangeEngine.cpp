@@ -10,6 +10,7 @@ GameTimer gTimer;
 STRANGEENGINEMK3_API void StrangeEngine::StartEngine()
 {
 	std::cout << "StrangeEngineMK3 starting up\n";
+	// Dirext X 11 initialization
 	SetDefaults(GetModuleHandle(0));
 	InitMainWindow();
 	if (!CreateDeviceAndContext())
@@ -23,5 +24,17 @@ STRANGEENGINEMK3_API void StrangeEngine::StartEngine()
 		MessageBoxA(gHMainWindow, gLastError.c_str(), NULL, MB_OK);
 		return;
 	}
+	CreateRenderTargetView();
+	if (!CreateDepthBuffer())
+	{
+		MessageBoxA(gHMainWindow, gLastError.c_str(), NULL, MB_OK);
+		return;
+	}
+	BindViewsToOutputMergerStage();
+	SetViewport();
+
+
+	// runtime
+	Run();
 
 }

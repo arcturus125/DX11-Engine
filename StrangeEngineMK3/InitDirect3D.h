@@ -12,9 +12,17 @@ bool InitMainWindow();
 bool CreateDeviceAndContext();
 bool Check4xMSAAQualitySupport();
 bool DescribeSwapChain();
+void CreateRenderTargetView();
+bool CreateDepthBuffer();
+void BindViewsToOutputMergerStage();
+void SetViewport();
 
 
 // run-time functions
+
+int Run();
+void CalculateFrameStats();
+void DrawScene();
 void OnResize();
 void OnMouseDown(WPARAM btnState, int x, int y);
 void OnMouseUp(WPARAM btnState, int x, int y);

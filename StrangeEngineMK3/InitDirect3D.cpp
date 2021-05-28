@@ -4,6 +4,8 @@
 #include "Common.h"
 #include <iostream>
 #include <windowsx.h>
+#include <sstream>
+#include <xnamath.h>
 
 HINSTANCE gAppHInstance; // application instance handle
 HWND	  gHMainWindow;	 // main window handle
@@ -464,10 +466,223 @@ bool DescribeSwapChain()
 	return true;
 }
 
+void CreateRenderTargetView()
+{
+	// get the back buffer from the swap chain
+	ID3D11Texture2D* backBuffer;
+	gSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**> (&backBuffer));
+	// create the render target view
+	gd3dDevice->CreateRenderTargetView(backBuffer, 0, &gRenderTargetView);
+	// release the back buffer now we are done with it
+	backBuffer->Release(); backBuffer = nullptr;
+
+	
+	// Debug logs
+	#if defined(DEBUG)||defined(_DEBUG)
+	std::cout << "Render target view created " << std::endl;
+	#endif
+}
+
+bool CreateDepthBuffer()
+{
+	D3D11_TEXTURE2D_DESC depthStencilDesc;
+	depthStencilDesc.Width = gViewportWidth;
+	depthStencilDesc.Height = gViewportHeight;
+	depthStencilDesc.MipLevels = 1;
+	depthStencilDesc.ArraySize = 1;
+	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	if (enable4xMsaa)
+	{
+		depthStencilDesc.SampleDesc.Count = 4;
+		depthStencilDesc.SampleDesc.Quality = g4xMsaaQuality - 1;
+	}
+	else
+	{
+		depthStencilDesc.SampleDesc.Count = 1;
+		depthStencilDesc.SampleDesc.Quality = 0;
+	}
+	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+	depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	depthStencilDesc.CPUAccessFlags = 0;
+	depthStencilDesc.MiscFlags = 0;
+
+	// gDepthStencilBuffer
+	// gDepthStencilView
+
+	HRESULT hr;
+
+	hr = gd3dDevice->CreateTexture2D(
+		&depthStencilDesc,
+		0,
+		&gDepthStencilBuffer
+	);
+	// check for failure
+	if (FAILED(hr))
+	{
+		// Debug logs
+		#if defined(DEBUG)||defined(_DEBUG)
+		std::cout << "[ERROR]: Could not create septh stencil buffer" << std::endl;
+		#endif
+
+		// return an error message to the engine
+		gLastError = "Could not create septh stencil buffer";
+		return false;
+	}
+
+	hr = gd3dDevice->CreateDepthStencilView(
+		gDepthStencilBuffer,
+		0,
+		&gDepthStencilView
+	);
+	// check for failure
+	if (FAILED(hr))
+	{
+		// Debug logs
+		#if defined(DEBUG)||defined(_DEBUG)
+		std::cout << "[ERROR]: Could not create septh stencil view" << std::endl;
+		#endif
+
+		// return an error message to the engine
+		gLastError = "Could not create septh stencil view";
+		return false;
+	}
+
+	// Debug logs
+	#if defined(DEBUG)||defined(_DEBUG)
+	std::cout << "depth buffer created" << std::endl;
+	#endif
+	return true;
+}
+
+void BindViewsToOutputMergerStage()
+{
+	gd3dImmediateContext->OMSetRenderTargets(
+		1, &gRenderTargetView, gDepthStencilView
+	);
+
+	// Debug logs
+	#if defined(DEBUG)||defined(_DEBUG)
+	std::cout << "views bound to output merger stage" << std::endl;
+	#endif
+}
+
+void SetViewport()
+{
+	D3D11_VIEWPORT vp;
+
+	vp.TopLeftX = 0.0f;
+	vp.TopLeftY = 0.0f;
+	vp.Width = static_cast<float>(gViewportWidth);
+	vp.Height = static_cast<float>(gViewportHeight);
+	vp.MinDepth = 0.0f;
+	vp.MaxDepth = 1.0f;
+
+	gd3dImmediateContext->RSSetViewports(1, &vp);
+
+	// Debug logs
+	#if defined(DEBUG)||defined(_DEBUG)
+	std::cout << "viewport set" << std::endl;
+	#endif
+}
+
 
 // ==============================================================
 //	 Run-time functions
 // ==============================================================
+
+int Run()
+{
+	MSG msg = { 0 };
+
+	gTimer.Reset();
+
+	while (msg.message != WM_QUIT)
+	{
+		// If there are Window messages then process them.
+		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		// Otherwise, do animation/game stuff.
+		else
+		{
+			gTimer.Tick();
+
+			if (!gAppPaused)
+			{
+				CalculateFrameStats();
+				//UpdateScene(mTimer.DeltaTime());
+				DrawScene();
+			}
+			else
+			{
+				Sleep(100);
+			}
+		}
+	}
+
+	return (int)msg.wParam;
+}
+
+void CalculateFrameStats()
+{
+	// Code computes the average frames per second, and also the 
+	// average time it takes to render one frame.  These stats 
+	// are appended to the window caption bar.
+
+	static int frameCnt = 0;
+	static float timeElapsed = 0.0f;
+
+	frameCnt++;
+
+	// Compute averages over one second period.
+	if ((gTimer.GameTime() - timeElapsed) >= 1.0f)
+	{
+		float fps = (float)frameCnt; // fps = frameCnt / 1
+		float mspf = 1000.0f / fps;
+
+		std::wostringstream outs;
+		outs.precision(6);
+		outs << mMainWndCaption << L"    "
+			<< L"FPS: " << fps << L"    "
+			<< L"Frame Time: " << mspf << L" (ms)";
+		SetWindowText(gHMainWindow, outs.str().c_str());
+
+		// Reset for next average.
+		frameCnt = 0;
+		timeElapsed += 1.0f;
+	}
+}
+
+void DrawScene()
+{
+	if (!(gd3dImmediateContext != nullptr && gSwapChain != nullptr))
+		return;
+
+
+	XMVECTORF32 Blue = { 0.0f, 0.0f, 1.0f, 1.0f };
+	gd3dImmediateContext->ClearRenderTargetView(gRenderTargetView, reinterpret_cast<const float*>(&Blue));
+	gd3dImmediateContext->ClearDepthStencilView(gDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	HRESULT hr;
+	hr = gSwapChain->Present(0, 0);
+
+	
+	// check for failure
+	if (FAILED(hr))
+	{
+		// Debug logs
+		#if defined(DEBUG)||defined(_DEBUG)
+		std::cout << "[ERROR]: Could not draw scene" << std::endl;
+		#endif
+
+		// return an error message to the engine
+		gLastError = "Could not draw scene";
+		return;
+	}
+
+}
 
 void OnResize()
 {
