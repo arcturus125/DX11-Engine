@@ -1,6 +1,12 @@
 #pragma once
 
 
+#ifdef STRANGEENGINEMK3_EXPORTS
+#define STRANGEENGINEMK3_API __declspec(dllexport)
+#else
+#define STRANGEENGINEMK3_API __declspec(dllimport)
+#endif // STRANGEENGINE_EXPORTS
+
 enum KeyState
 {
 	NotPressed,
@@ -177,15 +183,15 @@ void MouseMoveEvent(int X, int Y);
 // Returns true when a given key or button is first pressed down. Use
 // for one-off actions or toggles. Example key codes: Key_A or
 // Mouse_LButton, see input.h for a full list.
-bool KeyHit(KeyCode eKeyCode);
+STRANGEENGINEMK3_API bool KeyHit(KeyCode eKeyCode);
 
 // Returns true as long as a given key or button is held down. Use for
 // continuous action or motion. Example key codes: Key_A or
 // Mouse_LButton, see input.h for a full list.
-bool KeyHeld(KeyCode eKeyCode);
+STRANGEENGINEMK3_API bool KeyHeld(KeyCode eKeyCode);
 
 // Returns current X position of mouse
-int GetMouseX();
+STRANGEENGINEMK3_API int GetMouseX();
 
 // Returns current Y position of mouse
-int GetMouseY();
+STRANGEENGINEMK3_API int GetMouseY();

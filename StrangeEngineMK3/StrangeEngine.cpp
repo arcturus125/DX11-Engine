@@ -7,7 +7,8 @@ GameTimer gTimer;
 
 
 
-STRANGEENGINEMK3_API void StrangeEngine::StartEngine()
+
+STRANGEENGINEMK3_API void StrangeEngine::StartEngine(void (*start)(), void (*update)(), void (*end)())
 {
 	std::cout << "StrangeEngineMK3 starting up\n";
 	// Direct X 11 initialization
@@ -41,11 +42,11 @@ STRANGEENGINEMK3_API void StrangeEngine::StartEngine()
 	std::cout << "StrangeEngineMK3 startup complete\n====================\n";
 
 	// runtime
-	Run();
+	Run(start,update,end);
 
 }
 
-int StrangeEngine::Run()
+int StrangeEngine::Run(void (*start)(), void (*update)(), void (*end)())
 {
 	MSG msg = { 0 };
 
@@ -64,6 +65,7 @@ int StrangeEngine::Run()
 		{
 			gTimer.Tick();
 
+			update();
 
 			if (!DirectX->mAppPaused)
 			{

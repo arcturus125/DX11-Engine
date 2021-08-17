@@ -16,8 +16,8 @@ class StrangeEngine
 public:
 	InitDirect3D* DirectX;
 
-	STRANGEENGINEMK3_API void StartEngine();
-	int Run();
+	STRANGEENGINEMK3_API void StartEngine(void (*start)(), void (*update)(), void (*end)());
+	int Run(void (*start)(), void (*update)(), void (*end)());
 	void StopEngine();
 };
 
