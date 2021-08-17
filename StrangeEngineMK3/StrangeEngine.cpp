@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "StrangeEngine.h"
+#include "Input.h"
 
 std::string gLastError = "no error set";
 GameTimer gTimer;
@@ -37,7 +38,7 @@ STRANGEENGINEMK3_API void StrangeEngine::StartEngine()
 	DirectX->BindViewsToOutputMergerStage();
 	DirectX->SetViewport();
 
-	std::cout << "StrangeEngineMK3 startup complete\n";
+	std::cout << "StrangeEngineMK3 startup complete\n====================\n";
 
 	// runtime
 	Run();
@@ -63,10 +64,15 @@ int StrangeEngine::Run()
 		{
 			gTimer.Tick();
 
+
 			if (!DirectX->mAppPaused)
 			{
 				DirectX->CalculateFrameStats();
 				//UpdateScene(mTimer.DeltaTime());
+
+				
+				
+
 				DirectX->DrawScene();
 			}
 			else
@@ -81,7 +87,7 @@ int StrangeEngine::Run()
 
 void StrangeEngine::StopEngine()
 {
-	std::cout << "Application closed, shutting down engine\n";
+	std::cout << "\n====================\nApplication closed, shutting down engine\n";
 	delete DirectX;
 	DirectX = nullptr;
 }

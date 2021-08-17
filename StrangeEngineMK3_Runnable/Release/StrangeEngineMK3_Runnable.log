@@ -114,18 +114,23 @@ C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\xnamathmisc.inl
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\xnamathmisc.inl(519,40): warning C4838: conversion from 'unsigned int' to 'INT' requires a narrowing conversion
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\xnamathmisc.inl(519,51): warning C4838: conversion from 'unsigned int' to 'INT' requires a narrowing conversion
   Generating code
-  1 of 10 functions (10.0%) were compiled, the rest were copied from previous compilation.
+  0 of 10 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   StrangeEngineMK3_Runnable.vcxproj -> C:\StrangeEngine\StrangeEngineMK3_Runnable\Release\StrangeEngineMK3_Runnable.exe
+  C:\StrangeEngine\StrangeEngineMK3\Release\dllmain.obj
+  C:\StrangeEngine\StrangeEngineMK3\Release\GameTimer.obj
   C:\StrangeEngine\StrangeEngineMK3\Release\InitDirect3D.obj
+  C:\StrangeEngine\StrangeEngineMK3\Release\pch.obj
   C:\StrangeEngine\StrangeEngineMK3\Release\StrangeEngine.obj
   C:\StrangeEngine\StrangeEngineMK3\Release\StrangeEngineMK3.dll
   C:\StrangeEngine\StrangeEngineMK3\Release\StrangeEngineMK3.dll.recipe
   C:\StrangeEngine\StrangeEngineMK3\Release\StrangeEngineMK3.exp
   C:\StrangeEngine\StrangeEngineMK3\Release\StrangeEngineMK3.iobj
   C:\StrangeEngine\StrangeEngineMK3\Release\StrangeEngineMK3.ipdb
+  C:\StrangeEngine\StrangeEngineMK3\Release\StrangeEngineMK3.lib
   C:\StrangeEngine\StrangeEngineMK3\Release\StrangeEngineMK3.log
+  C:\StrangeEngine\StrangeEngineMK3\Release\StrangeEngineMK3.pch
   C:\StrangeEngine\StrangeEngineMK3\Release\StrangeEngineMK3.pdb
-  9 File(s) copied
+  14 File(s) copied

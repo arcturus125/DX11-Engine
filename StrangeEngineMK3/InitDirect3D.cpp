@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "InitDirect3D.h"
+#include "Input.h"
 
 // gives the singleton an initial value to clear up any unresolved externals
 InitDirect3D* InitDirect3D::singleton = nullptr;
@@ -126,19 +127,66 @@ LRESULT InitDirect3D::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		((MINMAXINFO*)lParam)->ptMinTrackSize.y = 200;
 		return 0;
 
+
+		// mouse left button
 	case WM_LBUTTONDOWN:
-	case WM_MBUTTONDOWN:
-	case WM_RBUTTONDOWN:
-		OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-		return 0;
+	{
+		KeyDownEvent(Mouse_LButton);
+		break;
+	}
 	case WM_LBUTTONUP:
+	{
+		KeyUpEvent(Mouse_LButton);
+		break;
+	}
+
+	//mouse middle button
+	case WM_MBUTTONDOWN:
+	{
+		KeyDownEvent(Mouse_MButton);
+		break;
+	}
 	case WM_MBUTTONUP:
+	{
+		KeyUpEvent(Mouse_MButton);
+		break;
+	}
+
+	// mouse right button
+	case WM_RBUTTONDOWN:
+	{
+		KeyDownEvent(Mouse_RButton);
+		break;
+	}
 	case WM_RBUTTONUP:
-		OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-		return 0;
+	{
+		KeyUpEvent(Mouse_RButton);
+		break;
+	}
+
+	// mouse movement
 	case WM_MOUSEMOVE:
-		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-		return 0;
+	{
+		MouseMoveEvent(LOWORD(lParam), HIWORD(lParam));
+		break;
+	}
+
+	// The WM_KEYXXXX messages report keyboard input to our window.
+	// This application has added some simple functions (not DirectX) to process these messages (all in Input.cpp/h)
+	// so you don't need to change this code. Instead simply use KeyHit, KeyHeld etc.
+	case WM_KEYDOWN:
+	{
+		KeyDownEvent(static_cast<KeyCode>(wParam));
+		break;
+	}
+
+	case WM_KEYUP:
+	{
+		KeyUpEvent(static_cast<KeyCode>(wParam));
+		break;
+	}
+
+
 	}
 
 	return DefWindowProc(hwnd, msg, wParam, lParam);
@@ -627,6 +675,12 @@ int InitDirect3D::Run()
 			{
 				CalculateFrameStats();
 				//UpdateScene(mTimer.DeltaTime());
+
+				if (KeyHit(Key_A))
+				{
+
+					std::cout << "A hit" << std::endl;
+				}
 				DrawScene();
 			}
 			else
@@ -822,13 +876,4 @@ void InitDirect3D::OnResize()
 	mScreenViewport.MaxDepth = 1.0f;
 	
 	md3dImmediateContext->RSSetViewports(1, &mScreenViewport);
-}
-void InitDirect3D::OnMouseDown(WPARAM btnState, int x, int y)
-{
-}
-void InitDirect3D::OnMouseUp(WPARAM btnState, int x, int y)
-{
-}
-void InitDirect3D::OnMouseMove(WPARAM btnState, int x, int y)
-{
 }
