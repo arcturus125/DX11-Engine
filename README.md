@@ -32,3 +32,59 @@ When you clone/download this repository, all  the contents of the repository mus
  **if you do not store this repository in the correct location, it will not work**
  
  i realise this may not be very friendly, but i am very new to .dll projects and linker issues, to be honest, it's a miracle i got even this working
+
+# Project properties
+
+## StrangeEngineMK3
+
+#### General
+ Output Directory:
+    `$(ProjectDir)$(Configuration)\`
+    
+ IntermediateDirectory:
+    `$(Configuration)\`
+    
+### VC++ Directories
+ Include Directories: 
+    `$(DXSDK_DIR)Include;$(IncludePath)`
+
+ Library Directories:
+    `$(DXSDK_DIR)Lib\$(PlatformTarget);$(LibraryPath)`
+    
+### Linker > Input
+
+Additional Dependencies (Debug): `d3d11.lib;d3dx11.lib;D3DCompiler.lib;dxerr.lib;dxgi.lib;dxguid.lib;%(AdditionalDependencies)`
+Additional Dependencies (Release): `d3d11.lib;d3dx11d.lib;D3DCompiler.lib;dxerr.lib;dxgi.lib;dxguid.lib;%(AdditionalDependencies)`
+
+## Project (StrangeEngine_Runnable and StrangeEngine_BlankProject)
+
+### General
+ Output Directory: `$(ProjectDir)$(Configuration)\`
+
+ Intermediate Directory: `$(Configuration)\`
+ 
+ 
+### VC++ Directories
+ Include Directories: 
+    `$(DXSDK_DIR)Include;$(IncludePath)`
+
+ Library Directories:
+    `$(DXSDK_DIR)Lib\$(PlatformTarget);$(LibraryPath)`
+    
+    
+### Linker > General
+
+Additional Library Directories:  `C:\StrangeEngine\StrangeEngineMK3\$(IntDir);%(AdditionalLibraryDirectories)`
+
+### Linker > Input
+
+Additional Dependencies (Debug): `StrangeEngineMK3.lib;d3d11.lib;d3dx11d.lib;D3DCompiler.lib;dxerr.lib;dxgi.lib;dxguid.lib;%(AdditionalDependencies)`
+Additional Dependencies (Release): `StrangeEngineMK3.lib;d3d11.lib;d3dx11.lib;D3DCompiler.lib;dxerr.lib;dxgi.lib;dxguid.lib;%(AdditionalDependencies)`
+
+### Build Events > Pots-Build Event
+
+Command line; `xcopy /y /d "C:\StrangeEngine\StrangeEngineMK3\$(IntDir)StrangeEngineMK3.dll" "$(ProjectDir)$(Configuration)"`
+
+    
+
+
